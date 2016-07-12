@@ -29,4 +29,5 @@ public interface AbstractRegistryCenter {
 
     Object getRawClient();
 
+    Object getRawCache(String cachePath);
 }

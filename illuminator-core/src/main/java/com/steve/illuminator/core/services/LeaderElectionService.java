@@ -4,7 +4,10 @@ import com.steve.illuminator.core.Constants;
 import com.steve.illuminator.core.excpetion.ExceptionHandler;
 import com.steve.illuminator.core.reg.AbstractRegistryCenter;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.framework.recipes.leader.LeaderLatch;
+import org.springframework.stereotype.Service;
 
 /**
  * Created by xuh18 on 6/27/16.
@@ -34,6 +37,12 @@ public class LeaderElectionService {
         } catch (final Exception ex) {
             ExceptionHandler.handleException(ex);
         }
+    }
+
+
+    public void addDataListener(final TreeCacheListener listener) {
+        TreeCache cache = (TreeCache) registryCenter.getRawCache(Constants.hosts);
+        cache.getListenable().addListener(listener);
     }
 
 

@@ -16,6 +16,7 @@ public class LeaderElectionListener extends AbstractJobListener {
     AbstractRegistryCenter registryCenter;
 
     public LeaderElectionListener(AbstractRegistryCenter registryCenter){
+        this.registryCenter = registryCenter;
         leaderElectionService = new LeaderElectionService(registryCenter);
     }
 

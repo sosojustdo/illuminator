@@ -2,15 +2,19 @@ package com.steve.illuminator.core.reg;
 
 import com.steve.illuminator.core.Constants;
 import com.steve.illuminator.core.excpetion.ExceptionHandler;
+import com.steve.illuminator.core.listener.LeaderElectionListener;
+import com.steve.illuminator.core.services.LeaderElectionService;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.*;
@@ -30,6 +34,8 @@ public class ZookeeperRegistryCenter implements AbstractRegistryCenter{
 
     private CuratorFramework client;
 
+
+
     public ZookeeperRegistryCenter(final JobConfiguration zkConfig) {
         this.zkConfig = zkConfig;
     }
@@ -42,10 +48,18 @@ public class ZookeeperRegistryCenter implements AbstractRegistryCenter{
         } catch (final Exception ex) {
             ExceptionHandler.handleException(ex);
         }
+        caches.put(jobNodePath + "/", cache);
+        LeaderElectionService leaderElectionService = new LeaderElectionService(this);
+        leaderElectionService.addDataListener(new LeaderElectionListener(this));
         persistEphemeral(jobNodePath, "active");
         logger.info(zkConfig.getNodeId()+" has finished registered");
-        /*caches.put(jobNodePath + "/", cache);*/
+        try {
+            Thread.sleep(1000*60*5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void init() {
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
@@ -59,6 +73,14 @@ public class ZookeeperRegistryCenter implements AbstractRegistryCenter{
         } catch (final Exception ex) {
             ExceptionHandler.handleException(ex);
         }
+        String hostPath = Constants.hosts;
+        TreeCache cache = new TreeCache(client, hostPath);
+        try {
+            cache.start();
+        } catch (final Exception ex) {
+            ExceptionHandler.handleException(ex);
+        }
+        caches.put(hostPath + "/", cache);
     }
 
     public void close() {
@@ -179,5 +201,10 @@ public class ZookeeperRegistryCenter implements AbstractRegistryCenter{
         } catch (final InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    @Override
+    public Object getRawCache(final String cachePath) {
+        return caches.get(cachePath + "/");
     }
 }

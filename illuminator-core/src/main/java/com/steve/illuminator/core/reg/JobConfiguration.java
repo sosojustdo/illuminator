@@ -34,18 +34,21 @@ public class JobConfiguration {
 
     private String nodeId;
 
+    private String jobExpression;
+
     public JobConfiguration(){
 
     }
 
     public JobConfiguration(final String serverLists, final String namespace, final int baseSleepTimeMilliseconds, final int maxSleepTimeMilliseconds, final int maxRetries,
-                            final String nodeId) {
+                            final String nodeId, final String jobExpression) {
         this.serverLists = serverLists;
         this.namespace = namespace;
         this.baseSleepTimeMilliseconds = baseSleepTimeMilliseconds;
         this.maxSleepTimeMilliseconds = maxSleepTimeMilliseconds;
         this.maxRetries = maxRetries;
         this.nodeId = nodeId;
+        this.jobExpression = jobExpression;
     }
 
     public String getServerLists() {
@@ -94,5 +97,13 @@ public class JobConfiguration {
 
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
+    }
+
+    public String getJobExpression() {
+        return jobExpression;
+    }
+
+    public void setJobExpression(String jobExpression) {
+        this.jobExpression = jobExpression;
     }
 }

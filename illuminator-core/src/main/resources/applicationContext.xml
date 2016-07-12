@@ -19,6 +19,7 @@
                 <property name="maxSleepTimeMilliseconds" value="${maxSleepTimeMilliseconds}" />
                 <property name="maxRetries" value="${maxRetries}" />
                 <property name="nodeId" value="${nodeId}" />
+                <property name="jobExpression" value="${jobExpression}" />
             </bean>
         </constructor-arg>
     </bean>
