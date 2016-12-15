@@ -6,23 +6,24 @@ import java.util.Properties;
 import com.steve.kafkaresearch.constants.Constants;
 import com.steve.kafkaresearch.partitioner.HashPartitioner;
 import com.steve.kafkaresearch.pojo.VendorItemDTO;
-import com.steve.kafkaresearch.serialize.CustomDeserializer;
 import com.steve.kafkaresearch.serialize.CustomSerializer;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ProducerDemo {
 
+    static Producer<String, VendorItemDTO> producer;
+
+    private static final Logger logger = LoggerFactory.getLogger(ProducerDemo.class);
 
     public static void main(String[] args) throws Exception {
-        Producer<String, VendorItemDTO> producer = initProducer();
-        sendOne(producer, Constants.TOPIC);
+        initProducer();
+        sendBatch(producer, Constants.TOPIC);
     }
 
-    private static Producer<String, VendorItemDTO> initProducer() {
+    public static void initProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Constants.BROKER_LIST);
         props.put(ProducerConfig.ACKS_CONFIG, "1");
@@ -33,15 +34,30 @@ public class ProducerDemo {
         props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, HashPartitioner.class.getName());
 
         KafkaProducer kafkaProducer = new KafkaProducer<String, VendorItemDTO>(props);
-        return kafkaProducer;
+        producer = kafkaProducer;
     }
 
-    public static void sendOne(Producer<String, VendorItemDTO> producer, String topic) throws InterruptedException {
-        for(int i=1;i<=100;i++){
+    public static void sendBatch(Producer<String, VendorItemDTO> producer, String topic) throws InterruptedException {
+        for(int i=1;i<=1000;i++){
             ProducerRecord<String, VendorItemDTO> message = new ProducerRecord<>(topic, String.valueOf(i), new VendorItemDTO(55000000+Long.valueOf(i),Long.valueOf(i),new BigDecimal(i/3).doubleValue()));
-            producer.send(message);
+            producer.send(message, (RecordMetadata recordMetadata, Exception e)->{
+                if(e!=null){
+                    logger.error("error while send to kafka, itemid:"+message.value().getItemId(),e);
+                }
+            });
         }
         producer.close();
+    }
+
+    public static void sendOne(String topic, VendorItemDTO vendorItemDTO){
+        ProducerRecord<String, VendorItemDTO> message = new ProducerRecord<>(topic, String.valueOf(vendorItemDTO.getItemId()), vendorItemDTO);
+        producer.send(message, new Callback(){
+            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                if(e!=null){
+                    logger.error("error while send to kafka, itemid:"+vendorItemDTO.getItemId(),e);
+                }
+            }
+        });
     }
 
 }

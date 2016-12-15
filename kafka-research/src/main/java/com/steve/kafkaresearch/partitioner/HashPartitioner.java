@@ -1,8 +1,11 @@
 package com.steve.kafkaresearch.partitioner;
 
 
+import com.steve.kafkaresearch.consumer.ConsumerTask;
 import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.common.Cluster;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
