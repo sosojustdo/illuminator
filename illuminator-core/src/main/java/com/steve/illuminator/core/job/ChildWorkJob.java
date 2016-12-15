@@ -26,6 +26,7 @@ public class ChildWorkJob extends UntypedActor {
     public void onReceive(Object message) throws Exception {
         if(message instanceof JobMessage){
             JobMessage jobMessage = (JobMessage) message;
+            logger.info(jobMessage.getTaskMessage()+" has started.");
             Thread.sleep(jobMessage.getDuration());
             if(jobMessage.getId().equals("Job5")){
                 state++;
@@ -34,6 +35,7 @@ public class ChildWorkJob extends UntypedActor {
                     logger.info("state is 1, need throw timeout issue...");
                     throw new TimeOutException();
                 }
+                logger.info("job5 continue");
             }
             /*if(jobMessage.getId().equals("Job10")){
                     throw new ArithmeticException("10/0");
@@ -44,6 +46,7 @@ public class ChildWorkJob extends UntypedActor {
             if(jobMessage.getId().equals("Job20")){
                 throw new NullPointerException("throw null");
             }*/
+            logger.info("state:"+state);
             logger.info(jobMessage.getTaskMessage()+" has finished.");
             JobResult result = new JobResult(jobMessage.getId(),true);
             aggregate.tell(result,this.getSender());

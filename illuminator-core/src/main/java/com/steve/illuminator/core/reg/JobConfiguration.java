@@ -17,10 +17,13 @@
 
 package com.steve.illuminator.core.reg;
 
+import com.sun.org.apache.xml.internal.utils.SerializableLocatorImpl;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 @Component
-public class JobConfiguration {
+public class JobConfiguration implements Serializable {
     
     private String serverLists;
 

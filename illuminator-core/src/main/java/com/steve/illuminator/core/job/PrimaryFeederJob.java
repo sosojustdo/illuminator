@@ -65,7 +65,15 @@ public class PrimaryFeederJob extends UntypedActor {
                 }
                 aggregateSummaryActor = context().actorOf(Props.create(AggregateSummaryJob.class, total, this.getSelf()).withDispatcher("aggregate-dispatcher"), "aggregatejob");
                 workActor = context().actorOf(FromConfig.getInstance().props(Props.create(ChildWorkJob.class, aggregateSummaryActor)).withDispatcher("aggregate-dispatcher"),"childworkjob");
-                jobMessageList.stream().forEach(jobMessage->workActor.tell(jobMessage,this.getSelf()));
+                jobMessageList.stream().forEach(jobMessage->
+                {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    workActor.tell(jobMessage, this.getSelf());
+                });
             }
             else if(((String) message).equalsIgnoreCase("cancelJob")){
                 logger.info("now cancel the job, stop the primary...");

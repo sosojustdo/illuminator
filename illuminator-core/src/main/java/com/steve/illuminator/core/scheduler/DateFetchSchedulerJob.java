@@ -25,9 +25,14 @@ public class DateFetchSchedulerJob implements InterruptableJob {
         JobConfiguration jobConfiguration = (JobConfiguration) dataMap.get("jobconfig");
         // Log the time the job started
         logger.info(jobConfiguration.getNodeId()+" fired at " + new Date());//记录任务开始执行的时间
+        int j = 0;
         while(true){
             if(interrupted){
-                logger.info("job get finished");
+                logger.info("job get interrupted");
+                return;
+            }
+            else if(j==6){
+                //logger.info("job get finished");
                 return;
             }
             else{
@@ -37,7 +42,9 @@ public class DateFetchSchedulerJob implements InterruptableJob {
                     e.printStackTrace();
                 }
             }
+            j++;
         }
+
     }
 
     @Override
