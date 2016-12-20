@@ -32,6 +32,7 @@
     <modules>
         <module>illuminator-core</module>
         <module>kafka-research</module>
+        <module>lua-research</module>
     </modules>
 
     <dependencyManagement>

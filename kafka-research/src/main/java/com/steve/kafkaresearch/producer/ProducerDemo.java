@@ -38,7 +38,7 @@ public class ProducerDemo {
     }
 
     public static void sendBatch(Producer<String, VendorItemDTO> producer, String topic) throws InterruptedException {
-        for(int i=1;i<=1000;i++){
+        for(int i=1;i<=300;i++){
             ProducerRecord<String, VendorItemDTO> message = new ProducerRecord<>(topic, String.valueOf(i), new VendorItemDTO(55000000+Long.valueOf(i),Long.valueOf(i),new BigDecimal(i/3).doubleValue()));
             producer.send(message, (RecordMetadata recordMetadata, Exception e)->{
                 if(e!=null){
