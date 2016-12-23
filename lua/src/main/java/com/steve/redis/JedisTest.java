@@ -146,7 +146,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000507","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
-        dto = new VendorItemDTO("5500000505","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000599","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 4d);
@@ -175,7 +175,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000507","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
-        dto = new VendorItemDTO("5500000505","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000503","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 4d);
@@ -200,7 +200,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000507","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
-        dto = new VendorItemDTO("5500000505","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 3d);
         dto = new VendorItemDTO("5500000599","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 4d);
@@ -234,13 +234,6 @@ public class JedisTest {
         String key8 = "202,DEFAULT";
         jedis.del(key8);
         viMap.clear();
-        viMap.put("{\"vendorItemId\":5500000605,\"vendorId\":A00010029,\"isCRV\":true}", 1d);
-        viMap.put("{\"vendorItemId\":5500000601,\"vendorId\":A00010028,\"isCRV\":false}", 2d);
-        viMap.put("{\"vendorItemId\":5500000605,\"vendorId\":A00010028,\"isCRV\":false}", 2d);
-        viMap.put("{\"vendorItemId\":5500000699,\"vendorId\":A00010028,\"isCRV\":false}", 3d);
-        viMap.put("{\"vendorItemId\":5500000610,\"vendorId\":A00010030,\"isCRV\":false}", 4d);
-        viMap.put("{\"vendorItemId\":5500000612,\"vendorId\":A00010030,\"isCRV\":false}", 5d);
-        viMap.put("{\"vendorItemId\":5500000616,\"vendorId\":A00010029,\"isCRV\":true}", 6d);
         dto = new VendorItemDTO("5500000605","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 1d);
         dto = new VendorItemDTO("5500000601","A00010028", false);
@@ -260,11 +253,6 @@ public class JedisTest {
         String key9 = "202,APP";
         jedis.del(key9);
         viMap.clear();
-        viMap.put("{\"vendorItemId\":5500000605,\"vendorId\":A00010029,\"isCRV\":true}", 1d);
-        viMap.put("{\"vendorItemId\":5500000601,\"vendorId\":A00010028,\"isCRV\":false}", 2d);
-        viMap.put("{\"vendorItemId\":5500000699,\"vendorId\":A00010028,\"isCRV\":false}", 3d);
-        viMap.put("{\"vendorItemId\":5500000612,\"vendorId\":A00010030,\"isCRV\":false}", 4d);
-        viMap.put("{\"vendorItemId\":5500000616,\"vendorId\":A00010029,\"isCRV\":true}", 5d);
         dto = new VendorItemDTO("5500000605","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 1d);
         dto = new VendorItemDTO("5500000601","A00010028", false);

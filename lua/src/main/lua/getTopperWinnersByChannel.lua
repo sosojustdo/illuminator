@@ -1,10 +1,11 @@
 --
 -- Created by IntelliJ IDEA.
 -- User: stevexu
--- Date: 12/22/16
--- Time: 4:23 PM
+-- Date: 12/23/16
+-- Time: 9:49 PM
 -- To change this template use File | Settings | File Templates.
 --
+
 function split(str, separator)
     local splitArray = {}
     if(string.len(str)<1) then
@@ -45,9 +46,17 @@ if #itemIds < 1 then
     ngx.say("{}")
 end
 
+local channels = split(ngx.var.channels,",")
+if #channels < 1 then
+    --empty response
+    ngx.say("{}")
+end
+
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
-    red:zrangebyscore(itemId..",DEFAULT",0,1)
+    for key,channel in ipairs(channels) do
+        red:zrangebyscore(itemId..","..channel,0,1)
+    end
 end
 local res, err= red:commit_pipeline()
 
@@ -56,18 +65,19 @@ if err then
     --local res = ngx.location.capture(ngx.var.redis_fallbackURL)
     --ngx.say(handleTomcatResponse(res,nullResponse))
 else
-    for i=1, #res do
+    for i=1, #itemIds do
         winnerResponse[itemIds[i]] = {}
-        if #res[i] > 0 then
-            winnerResponse[itemIds[i]]["winners"] = {}
-        end
-        for j=1, #res[i] do
-            local viObj = cjson.decode(res[i][j])
-            local viVal = {}
-            viVal["vendorItemId"]= viObj["vendorItemId"]
-            viVal["itemId"]= itemIds[i]
-            viVal["vendorId"] = viObj["vendorId"]
-            table.insert(winnerResponse[itemIds[i]]["winners"], viVal)
+        for c=1, #channels do
+            winnerResponse[itemIds[i]][channels[c]]={}
+            winnerResponse[itemIds[i]][channels[c]]["winners"]={}
+            for v=1, #res[(i-1)*#channels+c] do
+               local viObj = cjson.decode(res[(i-1)*#channels+c][v])
+               local viVal = {}
+               viVal["vendorItemId"]= viObj["vendorItemId"]
+               viVal["itemId"]= itemIds[i]
+               viVal["vendorId"] = viObj["vendorId"]
+               table.insert(winnerResponse[itemIds[i]][channels[c]]["winners"], viVal)
+            end
         end
     end
 end
