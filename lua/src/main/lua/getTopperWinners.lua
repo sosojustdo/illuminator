@@ -5,28 +5,30 @@
 -- Time: 4:23 PM
 -- To change this template use File | Settings | File Templates.
 --
-function split(szFullString, szSeparator)
-    local nFindStartIndex = 1
-    local nSplitIndex = 1
-    local nSplitArray = {}
+function split(str, separator)
+    local splitArray = {}
+    if(string.len(str)<1) then
+        return splitArray
+    end
+    local startIndex = 1
+    local splitIndex = 1
     while true do
-        local nFindLastIndex = string.find(szFullString, szSeparator, nFindStartIndex)
-        if not nFindLastIndex then
-            nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, string.len(szFullString))
+        local lastIndex = string.find(str, separator, startIndex)
+        if not lastIndex then
+            splitArray[splitIndex] = string.sub(str, startIndex, string.len(str))
             break
         end
-        nSplitArray[nSplitIndex] = string.sub(szFullString, nFindStartIndex, nFindLastIndex - 1)
-        nFindStartIndex = nFindLastIndex + string.len(szSeparator)
-        nSplitIndex = nSplitIndex + 1
+        splitArray[splitIndex] = string.sub(str, startIndex, lastIndex - 1)
+        startIndex = lastIndex + string.len(separator)
+        splitIndex = splitIndex + 1
     end
-    return nSplitArray
+    return splitArray
 end
 
 ngx.header.content_type = 'application/json;charset=UTF-8'
 
 local cjson = require "cjson"
 local redis = require "redis"
---local parser = require "parser"
 local red = redis:new()
 
 red:set_timeout(ngx.var.redis_timeout)
@@ -36,6 +38,12 @@ if not ok then
 end
 
 local itemId_DefaultChannel = split(ngx.var.itemIds,",")
+local winnerResponse = {}
+
+if #itemId_DefaultChannel < 1 then
+    --empty response
+    ngx.say("{}")
+end
 
 red:init_pipeline()
 for key,itemId in ipairs(itemId_DefaultChannel) do
@@ -49,11 +57,21 @@ if err then
     --ngx.say(handleTomcatResponse(res,nullResponse))
 else
     for i=1, #res do
+        winnerResponse[itemId_DefaultChannel[i]] = {}
+        if #res[i] > 0 then
+            winnerResponse[itemId_DefaultChannel[i]]["winners"] = {}
+        end
         for j=1, #res[i] do
-            ngx.say(res[i][j]);
+            local viObj = cjson.decode(res[i][j])
+            local viVal = {}
+            viVal["vendorItemId"]= viObj["vendorItemId"]
+            viVal["itemId"]= itemId_DefaultChannel[i]
+            viVal["vendorId"] = viObj["vendorId"]
+            table.insert(winnerResponse[itemId_DefaultChannel[i]]["winners"], viVal)
         end
     end
 end
+ngx.say(cjson.encode(winnerResponse))
 
 local ok, err = red:set_keepalive(ngx.var.redis_keepalive, ngx.var.redis_poolSize)
 if not ok then
