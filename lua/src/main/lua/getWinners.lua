@@ -1,8 +1,8 @@
 --
 -- Created by IntelliJ IDEA.
 -- User: stevexu
--- Date: 12/24/16
--- Time: 10:12 PM
+-- Date: 12/25/16
+-- Time: 5:45 PM
 -- To change this template use File | Settings | File Templates.
 --
 
@@ -24,6 +24,19 @@ function split(str, separator)
         splitIndex = splitIndex + 1
     end
     return splitArray
+end
+
+function swap(array, index1, index2)
+    array[index1], array[index2] = array[index2], array[index1]
+end
+
+function shuffle(array)
+    local counter = #array
+    while counter > 1 do
+        local index = math.random(counter)
+        swap(array, index, counter)
+        counter = counter - 1
+    end
 end
 
 ngx.header.content_type = 'application/json;charset=UTF-8'
@@ -62,7 +75,7 @@ end
 
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
-    red:zrange(itemId..",DEFAULT",0,-1)
+    red:zrange(itemId..",DEFAULT",0,-1,"WITHSCORES")
 end
 local res, err= red:commit_pipeline()
 
@@ -77,20 +90,51 @@ else
             winnerResponse[itemIds[i]]["winners"] = {}
         end
         local totalWinners=0
+        --array to save score and vi map
+        local tmp={}
+        local viTempValue={}
         for j=1, #res[i] do
-            totalWinners=totalWinners+1
+            --[[totalWinners=totalWinners+1
             if page*size < j and (page+1)*size >= j then
-               --only fetch the value within page range
-               local viObj = cjson.decode(res[i][j])
-               local viVal = {}
-               viVal["vendorItemId"]= viObj["vendorItemId"]
-               viVal["itemId"]= itemIds[i]
-               viVal["vendorId"] = viObj["vendorId"]
-               table.insert(winnerResponse[itemIds[i]]["winners"], viVal)
+                --only fetch the value within page range
+                local viObj = cjson.decode(res[i][j])
+                local viVal = {}
+                viVal["vendorItemId"]= viObj["vendorItemId"]
+                viVal["itemId"]= itemIds[i]
+                viVal["vendorId"] = viObj["vendorId"]
+                table.insert(winnerResponse[itemIds[i["winners"], viVal)
+            end]]
+            if j%2 == 0 then
+                --score
+                local score = res[i][j]
+                if tmp[score] == nil then
+                    tmp[score] = {}
+                    table.insert(tmp[score],viTempValue)
+                else
+                    table.insert(tmp[score],viTempValue)
+                end
+            else
+                --value
+                local viObj = cjson.decode(res[i][j])
+                viTempValue = {}
+                viTempValue["vendorItemId"]= viObj["vendorItemId"]
+                viTempValue["itemId"]= itemIds[i]
+                viTempValue["vendorId"] = viObj["vendorId"]
+            end
+        end
+        for score,val in pairs(tmp) do
+            if(#val <= 1) then
+                --no need to shuffle
+                table.insert(winnerResponse[itemIds[i]]["winners"], val)
+            else
+                shuffle(val)
+                for v=1, #val do
+                    table.insert(winnerResponse[itemIds[i]]["winners"], val[v])
+                end
             end
         end
 
-        local totalPages=math.ceil(totalWinners/size)
+        --[[local totalPages=math.ceil(totalWinners/size)
 
         if page*size >= totalWinners then
             --out of range
@@ -101,8 +145,8 @@ else
             return
         end
 
-        winnerResponse[itemIds[i]]["totalWinners"]=totalWinners
-        winnerResponse[itemIds[i]]["totalPages"]=totalPages
+        winnerResponse[itemIds[i["totalWinners"]=totalWinners
+        winnerResponse[itemIds[i["totalPages"]=totalPages]]
     end
 end
 
