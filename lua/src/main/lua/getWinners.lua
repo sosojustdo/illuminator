@@ -30,17 +30,17 @@ function swap(array, index1, index2)
     array[index1], array[index2] = array[index2], array[index1]
 end
 
+math.randomseed(os.time())
 function shuffle(array)
     local counter = #array
     while counter > 1 do
         local index = math.random(counter)
-        swap(array, index, counter)
+        swap(array,index,counter)
         counter = counter - 1
     end
 end
 
 ngx.header.content_type = 'application/json;charset=UTF-8'
-
 local cjson = require "cjson"
 local redis = require "redis"
 local red = redis:new()
@@ -75,7 +75,7 @@ end
 
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
-    red:zrange(itemId..",DEFAULT",0,-1,"WITHSCORES")
+    red:zrange(itemId..":DEFAULT",0,-1,"WITHSCORES")
 end
 local res, err= red:commit_pipeline()
 
@@ -88,65 +88,101 @@ else
         winnerResponse[itemIds[i]] = {}
         if #res[i] > 0 then
             winnerResponse[itemIds[i]]["winners"] = {}
-        end
-        local totalWinners=0
-        --array to save score and vi map
-        local tmp={}
-        local viTempValue={}
-        for j=1, #res[i] do
-            --[[totalWinners=totalWinners+1
-            if page*size < j and (page+1)*size >= j then
-                --only fetch the value within page range
-                local viObj = cjson.decode(res[i][j])
-                local viVal = {}
-                viVal["vendorItemId"]= viObj["vendorItemId"]
-                viVal["itemId"]= itemIds[i]
-                viVal["vendorId"] = viObj["vendorId"]
-                table.insert(winnerResponse[itemIds[i["winners"], viVal)
-            end]]
-            if j%2 == 0 then
-                --score
-                local score = res[i][j]
-                if tmp[score] == nil then
-                    tmp[score] = {}
-                    table.insert(tmp[score],viTempValue)
+            local totalWinners=0
+            --array to save score and vi map
+            local tmp = {}
+            local viTempValue = {}
+            local lastScore = 0
+            local rank = 0
+            for j=1, #res[i] do
+                if j%2 == 0 then
+                    --score
+                    if res[i][j] ~= lastScore then
+                        rank = rank+1
+                    end
+
+                    if tmp[rank] == nil then
+                        tmp[rank] = {}
+                        table.insert(tmp[rank],viTempValue)
+                    else
+                        table.insert(tmp[rank],viTempValue)
+                    end
+                    lastScore = res[i][j]
                 else
-                    table.insert(tmp[score],viTempValue)
+                    --value
+                    local viObj = cjson.decode(res[i][j])
+                    viTempValue = {}
+                    viTempValue["vendorItemId"]= viObj["vendorItemId"]
+                    viTempValue["itemId"]= itemIds[i]
+                    viTempValue["vendorId"] = viObj["vendorId"]
+                    viTempValue["crv"] = viObj["crv"]
                 end
-            else
-                --value
-                local viObj = cjson.decode(res[i][j])
-                viTempValue = {}
-                viTempValue["vendorItemId"]= viObj["vendorItemId"]
-                viTempValue["itemId"]= itemIds[i]
-                viTempValue["vendorId"] = viObj["vendorId"]
             end
-        end
-        for score,val in pairs(tmp) do
-            if(#val <= 1) then
-                --no need to shuffle
-                table.insert(winnerResponse[itemIds[i]]["winners"], val)
-            else
-                shuffle(val)
+
+            local shuffledWinners = {}
+            for rank,val in pairs(tmp) do
+                if(#val <= 1) then
+                    --no need to shuffle
+                else
+                    --there is multiple vendoritem within same rank, need to shuffle
+                    shuffle(val)
+                end
                 for v=1, #val do
-                    table.insert(winnerResponse[itemIds[i]]["winners"], val[v])
+                    table.insert(shuffledWinners, val[v])
                 end
             end
+
+            --deduplicate
+            local encounter = false
+            local vendorSet = {}
+            local dedupWinners  ={}
+            local totalWinners = 0
+            for s=1, #shuffledWinners do
+                if shuffledWinners[s]["crv"] then
+                    --only need one vendoritem for consignment retail vendors
+                    if not encounter then
+                        --we don't need to display if it is consignment retail vendors
+                        shuffledWinners[s]["crv"] = nil
+                        table.insert(dedupWinners, shuffledWinners[s])
+                        totalWinners = totalWinners+1
+                        encounter = true
+                    end
+                else
+                    --only need one vendoritem for each vendor, for other vendoritem within same vendor, just ignore it
+                    local vendor = shuffledWinners[s]["vendorId"]
+                    if not vendorSet[vendor] then
+                        --we don't need to display if it is consignment retail vendors
+                        shuffledWinners[s]["crv"] = nil
+                        table.insert(dedupWinners, shuffledWinners[s])
+                        totalWinners = totalWinners+1
+                        vendorSet[vendor] = true
+                    end
+                end
+            end
+
+            local totalPages = math.ceil(totalWinners/size)
+
+            if page*size >= totalWinners then
+                --out of range
+                local invalidResponse = {}
+                invalidResponse["code"]="INVALID_ARGUMENT"
+                invalidResponse["message"]="fromIndex("..page*size..") >= toIndex("..totalWinners..")"
+                ngx.say(cjson.encode(invalidResponse))
+                return
+            end
+
+            for d=1, #dedupWinners do
+                if page*size < d and (page+1)*size >= d then
+                    table.insert(winnerResponse[itemIds[i]]["winners"], dedupWinners[d])
+                end
+            end
+
+            winnerResponse[itemIds[i]]["totalWinners"]=totalWinners
+            winnerResponse[itemIds[i]]["totalPages"]=totalPages
+        else
+            winnerResponse[itemIds[i]]["totalWinners"]=0
+            winnerResponse[itemIds[i]]["totalPages"]=0
         end
-
-        --[[local totalPages=math.ceil(totalWinners/size)
-
-        if page*size >= totalWinners then
-            --out of range
-            local invalidResponse = {}
-            invalidResponse["code"]="INVALID_ARGUMENT"
-            invalidResponse["message"]="fromIndex("..page*size..") >= toIndex("..totalWinners..")"
-            ngx.say(cjson.encode(invalidResponse))
-            return
-        end
-
-        winnerResponse[itemIds[i["totalWinners"]=totalWinners
-        winnerResponse[itemIds[i["totalPages"]=totalPages]]
     end
 end
 

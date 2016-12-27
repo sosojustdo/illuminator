@@ -62,7 +62,7 @@ end
 
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
-    red:zrange(itemId..",DEFAULT",0,-1)
+    red:zrange(itemId..":DEFAULT",0,-1)
 end
 local res, err= red:commit_pipeline()
 
@@ -75,34 +75,36 @@ else
         winnerResponse[itemIds[i]] = {}
         if #res[i] > 0 then
             winnerResponse[itemIds[i]]["winners"] = {}
-        end
-        local totalWinners=0
-        for j=1, #res[i] do
-            totalWinners=totalWinners+1
-            if page*size < j and (page+1)*size >= j then
-               --only fetch the value within page range
-               local viObj = cjson.decode(res[i][j])
-               local viVal = {}
-               viVal["vendorItemId"]= viObj["vendorItemId"]
-               viVal["itemId"]= itemIds[i]
-               viVal["vendorId"] = viObj["vendorId"]
-               table.insert(winnerResponse[itemIds[i]]["winners"], viVal)
+            local totalWinners=0
+            for j=1, #res[i] do
+                totalWinners=totalWinners+1
+                --only fetch the value within page range
+                if page*size < j and (page+1)*size >= j then
+                    local viObj = cjson.decode(res[i][j])
+                    local viVal = {}
+                    viVal["vendorItemId"]= viObj["vendorItemId"]
+                    viVal["itemId"]= itemIds[i]
+                    viVal["vendorId"] = viObj["vendorId"]
+                    table.insert(winnerResponse[itemIds[i]]["winners"], viVal)
+                end
             end
+
+            local totalPages=math.ceil(totalWinners/size)
+
+            if page*size >= totalWinners then
+                --out of range
+                local invalidResponse = {}
+                invalidResponse["code"]="INVALID_ARGUMENT"
+                invalidResponse["message"]="fromIndex("..page*size..") >= toIndex("..totalWinners..")"
+                ngx.say(cjson.encode(invalidResponse))
+                return
+            end
+            winnerResponse[itemIds[i]]["totalWinners"]=totalWinners
+            winnerResponse[itemIds[i]]["totalPages"]=totalPages
+        else
+            winnerResponse[itemIds[i]]["totalWinners"]=0
+            winnerResponse[itemIds[i]]["totalPages"]=0
         end
-
-        local totalPages=math.ceil(totalWinners/size)
-
-        if page*size >= totalWinners then
-            --out of range
-            local invalidResponse = {}
-            invalidResponse["code"]="INVALID_ARGUMENT"
-            invalidResponse["message"]="fromIndex("..page*size..") >= toIndex("..totalWinners..")"
-            ngx.say(cjson.encode(invalidResponse))
-            return
-        end
-
-        winnerResponse[itemIds[i]]["totalWinners"]=totalWinners
-        winnerResponse[itemIds[i]]["totalPages"]=totalPages
     end
 end
 
