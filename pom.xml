@@ -34,7 +34,7 @@
     <modules>
         <module>illuminator-core</module>
         <module>kafka-research</module>
-        <module>lua-redis-research</module>
+        <module>hadoop-research</module>
         <module>lua</module>
     </modules>
 

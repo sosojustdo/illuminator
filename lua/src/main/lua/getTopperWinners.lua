@@ -47,7 +47,7 @@ end
 
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
-    red:zrangebyscore(itemId..",DEFAULT",0,1)
+    red:zrange(itemId..":DEFAULT:TOP",0,-1)
 end
 local res, err= red:commit_pipeline()
 

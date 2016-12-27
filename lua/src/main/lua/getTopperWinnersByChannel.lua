@@ -55,7 +55,7 @@ end
 red:init_pipeline()
 for key,itemId in ipairs(itemIds) do
     for key,channel in ipairs(channels) do
-        red:zrangebyscore(itemId..","..channel,0,1)
+        red:zrange(itemId..":"..channel..":TOP",0,-1)
     end
 end
 local res, err= red:commit_pipeline()
