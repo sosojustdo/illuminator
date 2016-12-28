@@ -341,6 +341,66 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         jedis.zadd(key19, viMap);
 
+        String key20 = "200:DEFAULT:REC";
+        jedis.del(key20);
+        viMap.clear();
+        VendorItemRecommendationDTO rdto = new VendorItemRecommendationDTO("5500000397","it is cheap", "A00010028");
+        jedis.set(key20, objectMapper.writeValueAsString(rdto));
+
+        String key21 = "200:APP:REC";
+        jedis.del(key21);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000397","it is cheap", "A00010028");
+        jedis.set(key21, objectMapper.writeValueAsString(rdto));
+
+        String key22 = "200:WEB:REC";
+        jedis.del(key22);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000397","it is cheap", "A00010028");
+        jedis.set(key22, objectMapper.writeValueAsString(rdto));
+
+        String key23 = "200:MOBILE_WEB:REC";
+        jedis.del(key23);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000410","it is close", "A00010029");
+        jedis.set(key23, objectMapper.writeValueAsString(rdto));
+
+        String key24 = "201:DEFAULT:REC";
+        jedis.del(key24);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000505","it is cheap", "A00010028");
+        jedis.set(key24, objectMapper.writeValueAsString(rdto));
+
+        String key25 = "201:APP:REC";
+        jedis.del(key25);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000505","it is cheap", "A00010028");
+        jedis.set(key25, objectMapper.writeValueAsString(rdto));
+
+        String key26 = "201:WEB:REC";
+        jedis.del(key26);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000502","it is cheap", "A00010029");
+        jedis.set(key26, objectMapper.writeValueAsString(rdto));
+
+        String key27 = "201:MOBILE_WEB:REC";
+        jedis.del(key27);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000502","it is close", "A00010029");
+        jedis.set(key27, objectMapper.writeValueAsString(rdto));
+
+        String key28 = "202:DEFAULT:REC";
+        jedis.del(key28);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000601","it is wonderful", "A00010028");
+        jedis.set(key28, objectMapper.writeValueAsString(rdto));
+
+        String key29 = "202:APP:REC";
+        jedis.del(key29);
+        viMap.clear();
+        rdto = new VendorItemRecommendationDTO("5500000610","it is wonderful", "A00010030");
+        jedis.set(key29, objectMapper.writeValueAsString(rdto));
+
         List<Object> results = pipeline.syncAndReturnAll();
 
         pool.returnResource(jedis);

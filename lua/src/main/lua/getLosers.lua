@@ -209,7 +209,7 @@ else
             end
         end
 
-        local time=os.time();
+        local time=os.time() * 1000;
         loserResponse[itemIds[i]]["eventTime"] = time
     end
 end
