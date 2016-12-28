@@ -119,6 +119,7 @@ else
                 end
             end
 
+            --shuffle
             local shuffledWinners = {}
             for rank,val in pairs(tmp) do
                 if(#val <= 1) then
