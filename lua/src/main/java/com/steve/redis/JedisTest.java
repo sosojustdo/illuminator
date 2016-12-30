@@ -7,10 +7,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Created by stevexu on 12/21/16.
@@ -46,19 +43,19 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000398","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
-        dto = new VendorItemDTO("5500000400","A00010028", false);
+        dto = new VendorItemDTO("5500000400","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 200.25d);
-        dto = new VendorItemDTO("5500000402","A00010028", false);
+        dto = new VendorItemDTO("5500000402","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000407","A00010028", false);
+        dto = new VendorItemDTO("5500000407","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000405","A00010028", false);
+        dto = new VendorItemDTO("5500000405","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000410","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
-        dto = new VendorItemDTO("5500000412","A00010030", false);
+        dto = new VendorItemDTO("5500000412","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
-        dto = new VendorItemDTO("5500000396","A00010028", false);
+        dto = new VendorItemDTO("5500000396","A00010033", true);
         viMap.put(objectMapper.writeValueAsString(dto), 800d);
         dto = new VendorItemDTO("5500000399","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400.5d);
@@ -68,7 +65,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 400.5d);
         dto = new VendorItemDTO("5500000413","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 700d);
-        dto = new VendorItemDTO("5500000415","A00010028", false);
+        dto = new VendorItemDTO("5500000415","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 700d);
         jedis.zadd(key, viMap);
 
@@ -79,13 +76,13 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000398","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
-        dto = new VendorItemDTO("5500000400","A00010028", false);
+        dto = new VendorItemDTO("5500000400","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 200.25d);
-        dto = new VendorItemDTO("5500000402","A00010028", false);
+        dto = new VendorItemDTO("5500000402","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000407","A00010028", false);
+        dto = new VendorItemDTO("5500000407","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000405","A00010028", false);
+        dto = new VendorItemDTO("5500000405","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000399","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400.5d);
@@ -104,11 +101,11 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000398","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
-        dto = new VendorItemDTO("5500000402","A00010028", false);
+        dto = new VendorItemDTO("5500000402","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000407","A00010028", false);
+        dto = new VendorItemDTO("5500000407","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000405","A00010028", false);
+        dto = new VendorItemDTO("5500000405","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000399","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400.5d);
@@ -123,15 +120,15 @@ public class JedisTest {
         viMap.clear();
         dto = new VendorItemDTO("5500000397","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
-        dto = new VendorItemDTO("5500000402","A00010028", false);
+        dto = new VendorItemDTO("5500000402","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000405","A00010028", false);
+        dto = new VendorItemDTO("5500000405","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000399","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400.5d);
         dto = new VendorItemDTO("5500000410","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
-        dto = new VendorItemDTO("5500000412","A00010030", false);
+        dto = new VendorItemDTO("5500000412","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
         jedis.zadd(key3, viMap);
 
@@ -142,19 +139,19 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000501","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 200d);
-        dto = new VendorItemDTO("5500000502","A00010029", true);
+        dto = new VendorItemDTO("5500000502","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000507","A00010029", true);
+        dto = new VendorItemDTO("5500000507","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000509","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000510","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
         dto = new VendorItemDTO("5500000512","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
-        dto = new VendorItemDTO("5500000516","A00010028", false);
+        dto = new VendorItemDTO("5500000516","A00010029", true);
         viMap.put(objectMapper.writeValueAsString(dto), 700d);
-        dto = new VendorItemDTO("5500000515","A00010028", false);
+        dto = new VendorItemDTO("5500000515","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 700d);
         dto = new VendorItemDTO("5500000599","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400d);
@@ -171,11 +168,11 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000501","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 200d);
-        dto = new VendorItemDTO("5500000502","A00010029", true);
+        dto = new VendorItemDTO("5500000502","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000507","A00010029", true);
+        dto = new VendorItemDTO("5500000507","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000509","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000503","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400d);
@@ -185,7 +182,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
         dto = new VendorItemDTO("5500000512","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
-        dto = new VendorItemDTO("5500000515","A00010028", false);
+        dto = new VendorItemDTO("5500000515","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 700d);
         jedis.zadd(key5, viMap);
 
@@ -196,11 +193,11 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000501","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 200d);
-        dto = new VendorItemDTO("5500000502","A00010029", true);
+        dto = new VendorItemDTO("5500000502","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000507","A00010029", true);
+        dto = new VendorItemDTO("5500000507","A00010031", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
-        dto = new VendorItemDTO("5500000509","A00010028", false);
+        dto = new VendorItemDTO("5500000509","A00010032", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000599","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400d);
@@ -219,7 +216,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         dto = new VendorItemDTO("5500000501","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 200d);
-        dto = new VendorItemDTO("5500000502","A00010029", true);
+        dto = new VendorItemDTO("5500000502","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 300d);
         dto = new VendorItemDTO("5500000599","A00010028", false);
         viMap.put(objectMapper.writeValueAsString(dto), 400d);
@@ -246,7 +243,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 400d);
         dto = new VendorItemDTO("5500000612","A00010030", false);
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
-        dto = new VendorItemDTO("5500000616","A00010029", true);
+        dto = new VendorItemDTO("5500000616","A00010034", true);
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
         jedis.zadd(key8, viMap);
 

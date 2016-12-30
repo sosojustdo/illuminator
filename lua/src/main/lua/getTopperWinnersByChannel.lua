@@ -6,30 +6,11 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-function split(str, separator)
-    local splitArray = {}
-    if(string.len(str)<1) then
-        return splitArray
-    end
-    local startIndex = 1
-    local splitIndex = 1
-    while true do
-        local lastIndex = string.find(str, separator, startIndex)
-        if not lastIndex then
-            splitArray[splitIndex] = string.sub(str, startIndex, string.len(str))
-            break
-        end
-        splitArray[splitIndex] = string.sub(str, startIndex, lastIndex - 1)
-        startIndex = lastIndex + string.len(separator)
-        splitIndex = splitIndex + 1
-    end
-    return splitArray
-end
-
 ngx.header.content_type = 'application/json;charset=UTF-8'
 
 local cjson = require "cjson"
 local redis = require "redis"
+local util = require "util"
 local red = redis:new()
 
 red:set_timeout(ngx.var.redis_timeout)
@@ -38,7 +19,7 @@ if not ok then
     return
 end
 
-local itemIds = split(ngx.var.itemIds,",")
+local itemIds = util.split(ngx.var.itemIds,",")
 local winnerResponse = {}
 
 if #itemIds < 1 then
@@ -46,7 +27,7 @@ if #itemIds < 1 then
     ngx.say("{}")
 end
 
-local channels = split(ngx.var.channels,",")
+local channels = util.split(ngx.var.channels,",")
 if #channels < 1 then
     --empty response
     ngx.say("{}")

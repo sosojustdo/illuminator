@@ -6,43 +6,42 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-function split(str, separator)
-    local splitArray = {}
-    if(string.len(str)<1) then
-        return splitArray
-    end
-    local startIndex = 1
-    local splitIndex = 1
-    while true do
-        local lastIndex = string.find(str, separator, startIndex)
-        if not lastIndex then
-            splitArray[splitIndex] = string.sub(str, startIndex, string.len(str))
-            break
+local function getRankAndViMap(res, i, itemIds, cjson)
+    local lastScore = 0
+    local viTempValue = {}
+    local rank = 0
+    local tmp = {}
+    for j=1, #res[i] do
+        if j%2 == 0 then
+            --score
+            if res[i][j] ~= lastScore then
+                rank = rank+1
+            end
+
+            if tmp[rank] == nil then
+                tmp[rank] = {}
+                table.insert(tmp[rank],viTempValue)
+            else
+                table.insert(tmp[rank],viTempValue)
+            end
+            lastScore = res[i][j]
+        else
+            --value
+            local viObj = cjson.decode(res[i][j])
+            viTempValue = {}
+            viTempValue["vendorItemId"]= viObj["vendorItemId"]
+            viTempValue["itemId"]= itemIds[i]
+            viTempValue["vendorId"] = viObj["vendorId"]
+            viTempValue["crv"] = viObj["crv"]
         end
-        splitArray[splitIndex] = string.sub(str, startIndex, lastIndex - 1)
-        startIndex = lastIndex + string.len(separator)
-        splitIndex = splitIndex + 1
     end
-    return splitArray
-end
-
-function swap(array, index1, index2)
-    array[index1], array[index2] = array[index2], array[index1]
-end
-
-math.randomseed(os.time())
-function shuffle(array)
-    local counter = #array
-    while counter > 1 do
-        local index = math.random(counter)
-        swap(array,index,counter)
-        counter = counter - 1
-    end
+    return tmp
 end
 
 ngx.header.content_type = 'application/json;charset=UTF-8'
 local cjson = require "cjson"
 local redis = require "redis"
+local util = require "util"
 local red = redis:new()
 
 red:set_timeout(ngx.var.redis_timeout)
@@ -51,7 +50,7 @@ if not ok then
     return
 end
 
-local itemIds = split(ngx.var.itemIds,",")
+local itemIds = util.split(ngx.var.itemIds,",")
 local winnerResponse = {}
 
 if #itemIds < 1 then
@@ -88,78 +87,14 @@ else
         winnerResponse[itemIds[i]] = {}
         if #res[i] > 0 then
             winnerResponse[itemIds[i]]["winners"] = {}
-            local totalWinners=0
-            --array to save score and vi map
-            local tmp = {}
-            local viTempValue = {}
-            local lastScore = 0
-            local rank = 0
-            for j=1, #res[i] do
-                if j%2 == 0 then
-                    --score
-                    if res[i][j] ~= lastScore then
-                        rank = rank+1
-                    end
-
-                    if tmp[rank] == nil then
-                        tmp[rank] = {}
-                        table.insert(tmp[rank],viTempValue)
-                    else
-                        table.insert(tmp[rank],viTempValue)
-                    end
-                    lastScore = res[i][j]
-                else
-                    --value
-                    local viObj = cjson.decode(res[i][j])
-                    viTempValue = {}
-                    viTempValue["vendorItemId"]= viObj["vendorItemId"]
-                    viTempValue["itemId"]= itemIds[i]
-                    viTempValue["vendorId"] = viObj["vendorId"]
-                    viTempValue["crv"] = viObj["crv"]
-                end
-            end
+            local tmp = getRankAndViMap(res,i,itemIds,cjson)
 
             --shuffle
-            local shuffledWinners = {}
-            for rank,val in pairs(tmp) do
-                if(#val <= 1) then
-                    --no need to shuffle
-                else
-                    --there is multiple vendoritem within same rank, need to shuffle
-                    shuffle(val)
-                end
-                for v=1, #val do
-                    table.insert(shuffledWinners, val[v])
-                end
-            end
+            local shuffledWinners = util.shuffle(tmp)
 
             --deduplicate
-            local encounter = false
-            local vendorSet = {}
-            local dedupWinners  ={}
-            local totalWinners = 0
-            for s=1, #shuffledWinners do
-                if shuffledWinners[s]["crv"] then
-                    --only need one vendoritem for consignment retail vendors
-                    if not encounter then
-                        --we don't need to display if it is consignment retail vendors
-                        shuffledWinners[s]["crv"] = nil
-                        table.insert(dedupWinners, shuffledWinners[s])
-                        totalWinners = totalWinners+1
-                        encounter = true
-                    end
-                else
-                    --only need one vendoritem for each vendor, for other vendoritem within same vendor, just ignore it
-                    local vendor = shuffledWinners[s]["vendorId"]
-                    if not vendorSet[vendor] then
-                        --we don't need to display if it is consignment retail vendors
-                        shuffledWinners[s]["crv"] = nil
-                        table.insert(dedupWinners, shuffledWinners[s])
-                        totalWinners = totalWinners+1
-                        vendorSet[vendor] = true
-                    end
-                end
-            end
+            local dedupWinners = util.deduplicate(shuffledWinners)
+            local totalWinners = #dedupWinners
 
             local totalPages = math.ceil(totalWinners/size)
 

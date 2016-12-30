@@ -5,43 +5,10 @@
 -- Time: 10:34 PM
 -- To change this template use File | Settings | File Templates.
 --
-function split(str, separator)
-    local splitArray = {}
-    if(string.len(str)<1) then
-        return splitArray
-    end
-    local startIndex = 1
-    local splitIndex = 1
-    while true do
-        local lastIndex = string.find(str, separator, startIndex)
-        if not lastIndex then
-            splitArray[splitIndex] = string.sub(str, startIndex, string.len(str))
-            break
-        end
-        splitArray[splitIndex] = string.sub(str, startIndex, lastIndex - 1)
-        startIndex = lastIndex + string.len(separator)
-        splitIndex = splitIndex + 1
-    end
-    return splitArray
-end
-
-function swap(array, index1, index2)
-    array[index1], array[index2] = array[index2], array[index1]
-end
-
-math.randomseed(os.time())
-function shuffle(array)
-    local counter = #array
-    while counter > 1 do
-        local index = math.random(counter)
-        swap(array,index,counter)
-        counter = counter - 1
-    end
-end
-
 ngx.header.content_type = 'application/json;charset=UTF-8'
 local cjson = require "cjson"
 local redis = require "redis"
+local util = require "util"
 local red = redis:new()
 
 red:set_timeout(ngx.var.redis_timeout)
@@ -50,10 +17,58 @@ if not ok then
     return
 end
 
-local itemIds = split(ngx.var.itemIds,",")
-local loserResponse = {}
+local itemIds = util.split(ngx.var.itemIds,",")
 local topWinners = {}
-local channels = {"APP","WEB","MOBILE_WEB","APP_PUSH"}
+local loserResponse = {}
+local channels = {"APP","WEB","MOBILE_WEB","APP_PUSH" }
+
+local function getTopWinnersByChannel(itemIds, topres, channels)
+    local topWinners = {}
+    for i=1, #itemIds do
+        topWinners[itemIds[i]] = {}
+        for c=1, #channels do
+            topWinners[itemIds[i]][channels[c]]={}
+            for v=1, #topres[(i-1)*#channels+c] do
+                local viObj = cjson.decode(topres[(i-1)*#channels+c][v])
+                local topVi =  viObj["vendorItemId"]
+                topWinners[itemIds[i]][channels[c]][topVi] = true
+            end
+        end
+    end
+    return topWinners
+end
+
+local function getRankAndViMap(res, i, itemIds, cjson, channels, c)
+    local lastScore = 0
+    local rank = 0
+    local tmp = {}
+    local viTempValue = {}
+    for v=1, #res[(i-1)*#channels+c] do
+        if v%2 == 0 then
+            --score
+            if res[(i-1)*#channels+c][v] ~= lastScore then
+                rank = rank+1
+            end
+
+            if tmp[rank] == nil then
+                tmp[rank] = {}
+                table.insert(tmp[rank],viTempValue)
+            else
+                table.insert(tmp[rank],viTempValue)
+            end
+            lastScore = res[(i-1)*#channels+c][v]
+        else
+            --value
+            local viObj = cjson.decode(res[(i-1)*#channels+c][v])
+            viTempValue = {}
+            viTempValue["vendorItemId"]= viObj["vendorItemId"]
+            viTempValue["itemId"]= itemIds[i]
+            viTempValue["vendorId"] = viObj["vendorId"]
+            viTempValue["crv"] = viObj["crv"]
+        end
+    end
+    return tmp
+end
 
 if #itemIds < 1 then
     --empty response
@@ -84,17 +99,7 @@ if toperr then
     --local res = ngx.location.capture(ngx.var.redis_fallbackURL)
     --ngx.say(handleTomcatResponse(res,nullResponse))
 else
-    for i=1, #itemIds do
-        topWinners[itemIds[i]] = {}
-        for c=1, #channels do
-            topWinners[itemIds[i]][channels[c]]={}
-            for v=1, #topres[(i-1)*#channels+c] do
-                local viObj = cjson.decode(topres[(i-1)*#channels+c][v])
-                local topVi =  viObj["vendorItemId"]
-                topWinners[itemIds[i]][channels[c]][topVi] = true
-            end
-        end
-    end
+    topWinners = getTopWinnersByChannel(itemIds,topres,channels)
 end
 
 local loserResponse = {}
@@ -115,79 +120,18 @@ else
     for i=1, #itemIds do
         local totalLosers=0
         --array to save score and vi map
-        local viTempValue = {}
         loserResponse[itemIds[i]]={}
         for c=1, #channels do
             loserResponse[itemIds[i]][channels[c]]={}
-            local lastScore = 0
-            local rank = 0
-            local tmp = {}
-            for v=1, #res[(i-1)*#channels+c] do
-                if v%2 == 0 then
-                    --score
-                    if res[(i-1)*#channels+c][v] ~= lastScore then
-                        rank = rank+1
-                    end
-
-                    if tmp[rank] == nil then
-                        tmp[rank] = {}
-                        table.insert(tmp[rank],viTempValue)
-                    else
-                        table.insert(tmp[rank],viTempValue)
-                    end
-                    lastScore = res[(i-1)*#channels+c][v]
-                else
-                    --value
-                    local viObj = cjson.decode(res[(i-1)*#channels+c][v])
-                    viTempValue = {}
-                    viTempValue["vendorItemId"]= viObj["vendorItemId"]
-                    viTempValue["itemId"]= itemIds[i]
-                    viTempValue["vendorId"] = viObj["vendorId"]
-                    viTempValue["crv"] = viObj["crv"]
-                end
-            end
+            local tmp = getRankAndViMap(res, i, itemIds, cjson, channels, c)
 
             --shuffle
-            local shuffledWinners = {}
-            for rank,val in pairs(tmp) do
-                if(#val <= 1) then
-                    --no need to shuffle
-                else
-                    --there is multiple vendoritem within same rank, need to shuffle
-                    shuffle(val)
-                end
-                for v=1, #val do
-                    table.insert(shuffledWinners, val[v])
-                end
-            end
+            local shuffledWinners = util.shuffle(tmp)
 
             --deduplicate
-            local encounter = false
-            local vendorSet = {}
-            local dedupWinners  ={}
+            local dedupWinners = util.deduplicate(shuffledWinners)
+
             local totalLosers = 0
-            for s=1, #shuffledWinners do
-                if shuffledWinners[s]["crv"] then
-                    --only need one vendoritem for consignment retail vendors
-                    if not encounter then
-                        --we don't need to display if it is consignment retail vendors
-                        shuffledWinners[s]["crv"] = nil
-                        table.insert(dedupWinners, shuffledWinners[s])
-                        encounter = true
-                    end
-                else
-                    --only need one vendoritem for each vendor, for other vendoritem within same vendor, just ignore it
-                    local vendor = shuffledWinners[s]["vendorId"]
-                    if not vendorSet[vendor] then
-                        --we don't need to display if it is consignment retail vendors
-                        shuffledWinners[s]["crv"] = nil
-                        table.insert(dedupWinners, shuffledWinners[s])
-                        vendorSet[vendor] = true
-                    end
-                end
-            end
-
-
             for d=1, #dedupWinners do
                 local vi = dedupWinners[d]["vendorItemId"]
                 --loser should remove the top winners
