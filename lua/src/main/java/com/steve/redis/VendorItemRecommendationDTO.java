@@ -1,21 +1,22 @@
 package com.steve.redis;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by stevexu on 12/28/16.
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class VendorItemRecommendationDTO {
 
+    @JsonProperty("vi")
     private String vendorItemId;
 
-    private String reason;
+    @JsonProperty("r")
+    private String r;
 
+    @JsonProperty("v")
     private String vendorId;
-
-    public VendorItemRecommendationDTO(String vendorItemId, String reason, String vendorId) {
-        this.vendorItemId = vendorItemId;
-        this.reason = reason;
-        this.vendorId = vendorId;
-    }
 
     public String getVendorItemId() {
         return vendorItemId;
@@ -25,12 +26,12 @@ public class VendorItemRecommendationDTO {
         this.vendorItemId = vendorItemId;
     }
 
-    public String getReason() {
-        return reason;
+    public String getR() {
+        return r;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setR(String r) {
+        this.r = r;
     }
 
     public String getVendorId() {
@@ -39,5 +40,15 @@ public class VendorItemRecommendationDTO {
 
     public void setVendorId(String vendorId) {
         this.vendorId = vendorId;
+    }
+
+    public VendorItemRecommendationDTO(String vi, String r, String v) {
+        this.vendorItemId = vi;
+        this.r = r;
+        this.vendorId = v;
+    }
+
+    public VendorItemRecommendationDTO(){
+
     }
 }
