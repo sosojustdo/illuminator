@@ -94,7 +94,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 500d);
         jedis.zadd(key1, viMap);
 
-        String key2 = "WIN:200:M_WEB";
+        String key2 = "WIN:200:MOBILE_WEB";
         jedis.del(key2);
         viMap.clear();
         dto = new VendorItemDTO("5500000397","A00010028");
@@ -209,7 +209,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 600d);
         jedis.zadd(key6, viMap);
 
-        String key7 = "WIN:201:M_WEB";
+        String key7 = "WIN:201:MOBILE_WEB";
         jedis.del(key7);
         viMap.clear();
         dto = new VendorItemDTO("5500000505","A00010028");
@@ -280,7 +280,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         jedis.zadd(key11, viMap);
 
-        String key12 = "TOP:200:M_WEB";
+        String key12 = "TOP:200:MOBILE_WEB";
         jedis.del(key12);
         viMap.clear();
         dto = new VendorItemDTO("5500000397","A00010028");
@@ -317,7 +317,7 @@ public class JedisTest {
         viMap.put(objectMapper.writeValueAsString(dto), 100d);
         jedis.zadd(key16, viMap);
 
-        String key17 = "TOP:201:M_WEB";
+        String key17 = "TOP:201:MOBILE_WEB";
         jedis.del(key17);
         viMap.clear();
         dto = new VendorItemDTO("5500000505","A00010028");
@@ -356,7 +356,7 @@ public class JedisTest {
         rdto = new VendorItemRecommendationDTO("5500000397","it is cheap", "A00010028");
         jedis.set(key22, objectMapper.writeValueAsString(rdto));
 
-        String key23 = "REC:200:M_WEB";
+        String key23 = "REC:200:MOBILE_WEB";
         jedis.del(key23);
         viMap.clear();
         rdto = new VendorItemRecommendationDTO("5500000410","it is close", "A00010029");
@@ -380,7 +380,7 @@ public class JedisTest {
         rdto = new VendorItemRecommendationDTO("5500000502","it is cheap", "A00010029");
         jedis.set(key26, objectMapper.writeValueAsString(rdto));
 
-        String key27 = "REC:201:M_WEB";
+        String key27 = "REC:201:MOBILE_WEB";
         jedis.del(key27);
         viMap.clear();
         rdto = new VendorItemRecommendationDTO("5500000502","it is close", "A00010029");
