@@ -36,10 +36,6 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-client</artifactId>
         </dependency>
@@ -83,6 +79,18 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.impetus.kundera.core</groupId>
+            <artifactId>kundera-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.impetus.kundera.client</groupId>
+            <artifactId>kundera-cassandra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.impetus.kundera.client</groupId>
+            <artifactId>kundera-cassandra-ds-driver</artifactId>
         </dependency>
     </dependencies>
 </project>
