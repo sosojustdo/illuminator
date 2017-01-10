@@ -15,9 +15,6 @@ public class VendorItemDTO {
     @JsonProperty("v")
     private String vendorId;
 
-    @JsonProperty("crv")
-    private Boolean consignmentRetailVendor;
-
     public String getVendorItemId() {
         return vendorItemId;
     }
@@ -34,14 +31,6 @@ public class VendorItemDTO {
         this.vendorId = vendorId;
     }
 
-    public Boolean getCrv() {
-        return consignmentRetailVendor;
-    }
-
-    public void setCrv(Boolean crv) {
-        this.consignmentRetailVendor = crv;
-    }
-
     public VendorItemDTO(String vi, String v) {
         this.vendorItemId = vi;
         this.vendorId = v;
@@ -51,9 +40,4 @@ public class VendorItemDTO {
 
     }
 
-    public VendorItemDTO(String vi, String v, Boolean crv) {
-        this.vendorItemId = vi;
-        this.vendorId = v;
-        this.consignmentRetailVendor = crv;
-    }
 }
