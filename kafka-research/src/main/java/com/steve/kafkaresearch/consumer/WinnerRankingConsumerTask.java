@@ -1,31 +1,28 @@
 package com.steve.kafkaresearch.consumer;
 
-import com.steve.kafkaresearch.constants.Constants;
-import com.steve.kafkaresearch.pojo.VendorItemDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.steve.kafkaresearch.pojo.WinnerRankingDto;
 import com.steve.kafkaresearch.producer.ProducerDemo;
-import com.steve.kafkaresearch.serialize.CustomDeserializer;
-import com.steve.kafkaresearch.serialize.CustomSerializer;
+import com.steve.kafkaresearch.serialize.RankingConsumerDeserializer;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class ConsumerTask implements Runnable {
+/**
+ * Created by stevexu on 1/16/17.
+ */
+public class WinnerRankingConsumerTask implements Runnable{
 
     //static private final String ZOOKEEPER = "localhost:2181,localhost:2182,localhost:2183";
     static private final String BROKER_LIST = "127.0.0.1:9093,127.0.0.1:9094,127.0.0.1:9095";
 
     private static List<String> topics = new ArrayList<>();
 
-    private final Consumer<String, VendorItemDTO> consumer;
+    private final Consumer<String, WinnerRankingDto> consumer;
 
     private final int id;
 
@@ -33,7 +30,9 @@ public class ConsumerTask implements Runnable {
 
     private int count = 0;
 
-    public ConsumerTask(int id, String groupId, List<String> topics) {
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public WinnerRankingConsumerTask(int id, String groupId, List<String> topics) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKER_LIST);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -41,30 +40,30 @@ public class ConsumerTask implements Runnable {
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "20000");
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "120000");
-        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760 / 10000);
+        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760 / 100);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CustomDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, RankingConsumerDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
         ProducerDemo.initProducer();
         this.topics = topics;
         this.id = id;
     }
 
-    private boolean doCommitSync(VendorItemDTO vendorItemDTO) {
+    private boolean doCommitSync(WinnerRankingDto winnerRankingDto) {
         try {
             consumer.commitSync();
             return true;
         } catch (WakeupException e) {
             // we're shutting down, but finish the commit first and then
             // rethrow the exception so that the main loop can exit
-            doCommitSync(vendorItemDTO);
+            doCommitSync(winnerRankingDto);
             throw e;
         } catch (CommitFailedException e) {
             // the commit failed with an unrecoverable error. if there is any
             // internal state which depended on the commit, you can clean it
             // up here. otherwise it's reasonable to ignore the error and go on
-            if (vendorItemDTO != null && vendorItemDTO.getItemId() != null) {
-                logger.error("Commit failed, itemid:"+vendorItemDTO.getItemId()+",will trigger a retry");
+            if (winnerRankingDto != null && winnerRankingDto.getItemId() != null) {
+                logger.error("Commit failed, itemid:"+winnerRankingDto.getItemId()+", channel:"+winnerRankingDto.getChannel());
                 //ProducerDemo.sendOne(Constants.TOPIC, vendorItemDTO);
             }
             return false;
@@ -90,39 +89,14 @@ public class ConsumerTask implements Runnable {
             });
 
             while (true) {
-                ConsumerRecords<String, VendorItemDTO> records = consumer.poll(1000 * 60);
+                ConsumerRecords<String, WinnerRankingDto> records = consumer.poll(1000 * 60);
                 if (records.count() > 0) {
                     logger.info("pull " + records.count() + " to consume");
                 } else {
                     logger.warn("there is no records pooling from consumer within 60 seconds");
                 }
-                for (ConsumerRecord<String, VendorItemDTO> record : records) {
-                    /*if(ConsumerDemo.finishedSummary.get(record.key())!=null){
-                        logger.info("record:"+record.value().getItemId()+" has been consumed, skip this message");
-                        continue;
-                    }*/
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("partition", record.partition());
-                    data.put("offset", record.offset());
-                    data.put("vendorItemId", record.value().getVendorItemId());
-                    data.put("itemId", record.value().getItemId());
-                    data.put("sellerRate", record.value().getNewSellerRate());
-                    logger.info(this.id + ": " + data);
-                    //x.commitAsync();
-                    count++;
-                    /*while(i<=10000000L){
-                        i++;
-                    }*/
-                    if (id == 2 && count % 10 == 0) {
-                        Thread.sleep(60000);
-                        Thread.currentThread().interrupt();
-                    }
-                    synchronized (ConsumerDemo.finishedSummary) {
-                        Integer number = ConsumerDemo.finishedSummary.putIfAbsent(record.key(), 1);
-                        if (number != null) {
-                            ConsumerDemo.finishedSummary.put(record.key(), ++number);
-                        }
-                    }
+                for (ConsumerRecord<String, WinnerRankingDto> record : records) {
+                    logger.info(this.id + ": " + mapper.writeValueAsString(record.value()));
                     doCommitSync(record.value());
                 }
                 if (records.count() > 0) {
@@ -151,6 +125,4 @@ public class ConsumerTask implements Runnable {
     public void shutdown() {
         consumer.wakeup();
     }
-
-
 }

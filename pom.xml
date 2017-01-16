@@ -30,6 +30,7 @@
         <jedis.version>2.4.2</jedis.version>
         <hadoop.cdh.version>2.6.0-cdh5.9.0</hadoop.cdh.version>
         <kundera.cassandra.verion>3.5</kundera.cassandra.verion>
+        <bijection.avro.version>0.9.2</bijection.avro.version>
     </properties>
 
     <modules>
@@ -201,6 +202,11 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-client</artifactId>
                 <version>${hadoop.cdh.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.twitter</groupId>
+                <artifactId>bijection-avro_2.10</artifactId>
+                <version>${bijection.avro.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
