@@ -1,14 +1,16 @@
 package com.steve.kafkaresearch.producer;
 
+import com.coupang.buybox.adapter.v1.winner.VendorItemRank;
+import com.coupang.buybox.adapter.v1.winner.WinnerRankingDto;
 import com.steve.kafkaresearch.constants.Constants;
+import com.steve.kafkaresearch.partitioner.RankingChangeHashPartitioner;
 import com.steve.kafkaresearch.pojo.VendorItemDTO;
-import com.steve.kafkaresearch.pojo.VendorItemRank;
-import com.steve.kafkaresearch.pojo.WinnerRankingDto;
 import com.steve.kafkaresearch.serialize.RankingConsumerSerializer;
 import org.apache.kafka.clients.producer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.Properties;
 /**
  * Created by stevexu on 1/16/17.
  */
-public class WinnerRankingProducer {
+public class WinnerRankingFakeProducer {
 
     static Producer<String, WinnerRankingDto> producer;
 
@@ -36,13 +38,14 @@ public class WinnerRankingProducer {
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, RankingConsumerSerializer.class.getName());
+        props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, RankingChangeHashPartitioner.class.getName());
 
         KafkaProducer kafkaProducer = new KafkaProducer<String, VendorItemDTO>(props);
         producer = kafkaProducer;
     }
 
     public static void sendBatch(Producer<String, WinnerRankingDto> producer, String topic) throws InterruptedException {
-        for(int i=200;i<205;i++){
+        for(int i=1;i<20000;i++){
             List<VendorItemRank> ranks = new ArrayList<>();
             ranks.add(new VendorItemRank(Long.valueOf(i), "Vendor100", 0));
             ranks.add(new VendorItemRank(Long.valueOf(i), "Vendor200", 1));

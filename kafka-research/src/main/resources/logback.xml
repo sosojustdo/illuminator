@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property name="log.directory" value="logs/" />
-    <property name="log.context.name" value="steve-job-console" />
+    <property name="log.context.name" value="illuminator-context" />
     <property name="log.charset" value="UTF-8" />
     <property name="log.maxHistory" value="30" />
     <property name="log.pattern" value="[%-5level] %date --%thread-- [%logger] %msg %n" />
     <property name="log.error.log.level" value="WARN" />
     <property name="log.async.queue.size" value="1024" />
-    
-    <include resource="includedLogbackConfig.xml" optional="true" />
-    <include resource="conf/includedLogbackConfig.xml" optional="true" />
     
     <contextName>${log.context.name}</contextName>
     
@@ -48,9 +45,9 @@
             <pattern>${log.pattern}</pattern>
         </encoder>
     </appender>
-    
+
     <root>
-        <Logger name="com.vce.lcm" level="trace" additivity="false">
+        <Logger name="com.steve.illuminator" level="trace" additivity="false">
             <AppenderRef ref="stdout" />
             <AppenderRef ref="stderr" />
             <AppenderRef ref="logfile" />

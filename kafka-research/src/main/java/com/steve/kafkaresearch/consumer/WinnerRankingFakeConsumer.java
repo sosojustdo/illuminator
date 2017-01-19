@@ -1,34 +1,32 @@
 package com.steve.kafkaresearch.consumer;
 
-import com.steve.kafkaresearch.constants.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Created by stevexu on 1/16/17.
  */
-public class WinnerRankingConsumerDemo {
+public class WinnerRankingFakeConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(WinnerRankingConsumerDemo.class);
-
-    public static void main(String args[]) throws InterruptedException {
+    public static void main(String args[]) throws InterruptedException, IOException {
         int numConsumers = 3;
-        List<String> topics = Arrays.asList(Constants.RANKINGCHANGETOPIC);
+        InputStream input = WinnerRankingFakeConsumer.class.getClassLoader().getResourceAsStream("config.properties");
+        Properties properties = new Properties();
+        properties.load(input);
+
+        List<String> topics = Arrays.asList(properties.getProperty("topic"));
         ExecutorService executor = Executors.newFixedThreadPool(numConsumers);
 
         final List<WinnerRankingConsumerTask> consumers = new ArrayList<>();
         for (int i = 1; i <= numConsumers; i++) {
-            WinnerRankingConsumerTask consumer = new WinnerRankingConsumerTask(i, Constants.GROUPID, topics);
+            WinnerRankingConsumerTask consumer = new WinnerRankingConsumerTask(i, (String)properties.getProperty("groupId"), topics, (String)properties.get("hosts"));
             consumers.add(consumer);
             executor.submit(consumer);
         }

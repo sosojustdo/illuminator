@@ -1,8 +1,7 @@
 package com.steve.kafkaresearch.consumer;
 
+import com.coupang.buybox.adapter.v1.winner.WinnerRankingDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.steve.kafkaresearch.pojo.WinnerRankingDto;
-import com.steve.kafkaresearch.producer.ProducerDemo;
 import com.steve.kafkaresearch.serialize.RankingConsumerDeserializer;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -10,15 +9,15 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by stevexu on 1/16/17.
  */
 public class WinnerRankingConsumerTask implements Runnable{
-
-    //static private final String ZOOKEEPER = "localhost:2181,localhost:2182,localhost:2183";
-    static private final String BROKER_LIST = "127.0.0.1:9093,127.0.0.1:9094,127.0.0.1:9095";
 
     private static List<String> topics = new ArrayList<>();
 
@@ -26,25 +25,22 @@ public class WinnerRankingConsumerTask implements Runnable{
 
     private final int id;
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsumerTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(WinnerRankingConsumerTask.class);
 
     private int count = 0;
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    public WinnerRankingConsumerTask(int id, String groupId, List<String> topics) {
+    public WinnerRankingConsumerTask(int id, String groupId, List<String> topics, String brokerList) {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKER_LIST);
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000");
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "20000");
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "120000");
         props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760 / 100);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, RankingConsumerDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
-        ProducerDemo.initProducer();
         this.topics = topics;
         this.id = id;
     }
@@ -91,23 +87,24 @@ public class WinnerRankingConsumerTask implements Runnable{
             while (true) {
                 ConsumerRecords<String, WinnerRankingDto> records = consumer.poll(1000 * 60);
                 if (records.count() > 0) {
-                    logger.info("pull " + records.count() + " to consume");
+                    logger.info("pull {} to consume", records.count());
                 } else {
                     logger.warn("there is no records pooling from consumer within 60 seconds");
                 }
                 for (ConsumerRecord<String, WinnerRankingDto> record : records) {
-                    logger.info(this.id + ": " + mapper.writeValueAsString(record.value()));
+                    logger.info("consumer {} receives message:{} ",id, record.value());
+                    count++;
                     doCommitSync(record.value());
                 }
                 if (records.count() > 0) {
-                    logger.info("Thread " + id + " finished consumes：" + count + "");
+                    logger.info("consumer {} finished consumes：{} messages", id, count);
                 }
             }
         } catch (WakeupException e) {
             // ignore, we're closing
             logger.warn("wakeup exception");
             if ( count > 0) {
-                logger.info("Thread " + id + " finished consumes：" + count + "");
+                logger.info("consumer: {} finished consumes：{} messages", id, count);
             }
         } catch (Exception e) {
             e.printStackTrace();
