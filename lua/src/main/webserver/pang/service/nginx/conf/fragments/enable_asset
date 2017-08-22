@@ -1,0 +1,10 @@
+location /resources/ {
+    alias /pang/service/webroot/resources/;
+    expires 30d;
+    access_log off;
+}
+
+location /favicon.ico {
+    access_log off;
+    root /pang/service/webroot;
+}

@@ -14,6 +14,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConsumerTask implements Runnable {
 
     //static private final String ZOOKEEPER = "localhost:2181,localhost:2182,localhost:2183";
-    static private final String BROKER_LIST = "127.0.0.1:9093,127.0.0.1:9094,127.0.0.1:9095";
+    static private final String BROKER_LIST = Constants.BROKER_LIST;
 
     private static List<String> topics = new ArrayList<>();
 
@@ -41,7 +42,7 @@ public class ConsumerTask implements Runnable {
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "3000");
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "20000");
         props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "120000");
-        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760 / 10000);
+        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 10485760 / 1000);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CustomDeserializer.class.getName());
         consumer = new KafkaConsumer<>(props);
@@ -55,8 +56,7 @@ public class ConsumerTask implements Runnable {
             consumer.commitSync();
             return true;
         } catch (WakeupException e) {
-            // we're shutting down, but finish the commit first and then
-            // rethrow the exception so that the main loop can exit
+            logger.error("wakeupexception",e);
             doCommitSync(vendorItemDTO);
             throw e;
         } catch (CommitFailedException e) {
@@ -64,7 +64,7 @@ public class ConsumerTask implements Runnable {
             // internal state which depended on the commit, you can clean it
             // up here. otherwise it's reasonable to ignore the error and go on
             if (vendorItemDTO != null && vendorItemDTO.getItemId() != null) {
-                logger.error("Commit failed, itemid:"+vendorItemDTO.getItemId()+",will trigger a retry");
+                logger.error("Commit failed, itemid:"+vendorItemDTO.getItemId());
                 //ProducerDemo.sendOne(Constants.TOPIC, vendorItemDTO);
             }
             return false;
@@ -77,9 +77,9 @@ public class ConsumerTask implements Runnable {
             consumer.subscribe(topics, new ConsumerRebalanceListener() {
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                     partitions.forEach(p -> {
-                        logger.info("Revoked partition for client: " + id + " topic:" + p.topic() + "," + p.partition());
+                        logger.info("Revoked partition for client: " + id + " topic:" + p.topic() + ",partition:" + p.partition());
                     });
-                    //doCommitSync(null);
+
                 }
 
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
@@ -101,30 +101,30 @@ public class ConsumerTask implements Runnable {
                         logger.info("record:"+record.value().getItemId()+" has been consumed, skip this message");
                         continue;
                     }*/
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("partition", record.partition());
-                    data.put("offset", record.offset());
-                    data.put("vendorItemId", record.value().getVendorItemId());
-                    data.put("itemId", record.value().getItemId());
-                    data.put("sellerRate", record.value().getNewSellerRate());
-                    logger.info(this.id + ": " + data);
-                    //x.commitAsync();
-                    count++;
-                    /*while(i<=10000000L){
-                        i++;
-                    }*/
-                    if (id == 2 && count % 10 == 0) {
-                        Thread.sleep(60000);
-                        Thread.currentThread().interrupt();
-                    }
-                    synchronized (ConsumerDemo.finishedSummary) {
-                        Integer number = ConsumerDemo.finishedSummary.putIfAbsent(record.key(), 1);
-                        if (number != null) {
-                            ConsumerDemo.finishedSummary.put(record.key(), ++number);
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("partition", record.partition());
+                        data.put("offset", record.offset());
+                        data.put("vendorItemId", record.value().getVendorItemId());
+                        data.put("itemId", record.value().getItemId());
+                        data.put("sellerRate", record.value().getNewSellerRate());
+                        //x.commitAsync();
+                        count++;
+                        logger.info(this.id + " consumes: " + data);
+                        synchronized (ConsumerDemo.finishedSummary) {
+                            Integer number = ConsumerDemo.finishedSummary.putIfAbsent(record.key(), 1);
+                            if (number != null) {
+                                ConsumerDemo.finishedSummary.put(record.key(), ++number);
+                            }
                         }
-                    }
-                    doCommitSync(record.value());
+                        if(id==1){
+                            Thread.sleep(1000*60*2);
+                        }
+                        if (id ==3 && count > 300) {
+                            throw new RuntimeException("consumer:"+id+" has encounter exception!");
+                            //Thread.sleep(1000*60);
+                        }
                 }
+                consumer.commitSync();
                 if (records.count() > 0) {
                     logger.info("Thread " + id + " finished consumes：" + count + "");
                 }
@@ -136,15 +136,13 @@ public class ConsumerTask implements Runnable {
                 logger.info("Thread " + id + " finished consumes：" + count + "");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Unexpected error", e);
+            logger.error("exception:", e);
+            if ( count > 0) {
+                logger.info("Thread " + id + " finished consumes：" + count + "");
+            }
         }
         finally {
-            try {
-                doCommitSync(null);
-            } finally {
-                consumer.close();
-            }
+            consumer.close();
         }
     }
 

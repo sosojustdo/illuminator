@@ -1,0 +1,4 @@
+# Cache
+    if ($uri ~* "(/resources/.*)$") {
+        expires 30d;
+    }

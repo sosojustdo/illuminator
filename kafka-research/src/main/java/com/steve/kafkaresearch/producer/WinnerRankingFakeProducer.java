@@ -2,7 +2,7 @@ package com.steve.kafkaresearch.producer;
 
 import com.coupang.buybox.adapter.v1.winner.VendorItemRank;
 import com.coupang.buybox.adapter.v1.winner.WinnerRankingDto;
-import com.steve.kafkaresearch.constants.Constants;
+import com.steve.kafkaresearch.consumer.WinnerRankingFakeConsumer;
 import com.steve.kafkaresearch.partitioner.RankingChangeHashPartitioner;
 import com.steve.kafkaresearch.pojo.VendorItemDTO;
 import com.steve.kafkaresearch.serialize.RankingConsumerSerializer;
@@ -10,7 +10,8 @@ import org.apache.kafka.clients.producer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,13 +27,17 @@ public class WinnerRankingFakeProducer {
     private static final Logger logger = LoggerFactory.getLogger(ProducerDemo.class);
 
     public static void main(String[] args) throws Exception {
-        initProducer();
-        sendBatch(producer, Constants.RANKINGCHANGETOPIC);
+        InputStream input = WinnerRankingFakeConsumer.class.getClassLoader().getResourceAsStream("config.properties");
+        Properties properties = new Properties();
+        properties.load(input);
+
+        initProducer(properties);
+        sendBatch(producer, properties.getProperty("topic"));
     }
 
-    public static void initProducer() {
+    public static void initProducer(Properties properties) throws IOException {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Constants.BROKER_LIST);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getProperty("hosts"));
         props.put(ProducerConfig.ACKS_CONFIG, "1");
         props.put(ProducerConfig.RETRIES_CONFIG, 0);
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
@@ -45,7 +50,7 @@ public class WinnerRankingFakeProducer {
     }
 
     public static void sendBatch(Producer<String, WinnerRankingDto> producer, String topic) throws InterruptedException {
-        for(int i=1;i<20000;i++){
+        for(int i=1;i<=10000;i++){
             List<VendorItemRank> ranks = new ArrayList<>();
             ranks.add(new VendorItemRank(Long.valueOf(i), "Vendor100", 0));
             ranks.add(new VendorItemRank(Long.valueOf(i), "Vendor200", 1));

@@ -24,7 +24,7 @@ public class HashPartitioner implements Partitioner {
   @Override
   public int partition(String topicName, Object key, byte[] bytes, Object value, byte[] bytes1, Cluster cluster) {
     int numPartitions = cluster.partitionCountForTopic(topicName);
-    return Math.abs(key.hashCode() % numPartitions);
+    return Math.abs(Integer.parseInt((String)key) % numPartitions);
   }
 
   @Override
