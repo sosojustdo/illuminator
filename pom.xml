@@ -37,6 +37,7 @@
         <scala.version>2.11.8</scala.version>
         <spark.version>2.2.0</spark.version>
         <redisson.version>3.5.0</redisson.version>
+        <jmh.version>1.19</jmh.version>
     </properties>
 
     <modules>
@@ -46,6 +47,8 @@
         <module>lua</module>
         <module>akka-spring-research</module>
         <module>disruptor-research</module>
+        <module>basic-research</module>
+        <module>cassandra-research</module>
     </modules>
 
     <dependencyManagement>
@@ -255,6 +258,16 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${jmh.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${jmh.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -6,7 +6,7 @@
         <artifactId>illuminator</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>lua</artifactId>
+    <artifactId>basic-research</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 
@@ -32,16 +32,8 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -56,8 +48,8 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
+             <groupId>org.apache.avro</groupId>
+             <artifactId>avro</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -68,6 +60,4 @@
             <artifactId>jmh-generator-annprocess</artifactId>
         </dependency>
     </dependencies>
-
 </project>
-

@@ -1,5 +1,6 @@
 package com.steve.redis;
 
+import org.apache.commons.lang.time.StopWatch;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -9,12 +10,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Created by stevexu on 7/5/17.
+ * @author stevexu
+ * @Since 9/8/17
  */
-public class RedisKeyTest {
+
+
+public class PipelineTest {
 
     public static void main(String[] args){
-        /*ResourceBundle bundle = ResourceBundle.getBundle("redis");
+        ResourceBundle bundle = ResourceBundle.getBundle("redis");
         if (bundle == null) {
             throw new IllegalArgumentException("[redis.properties] is not found!");
         }
@@ -30,12 +34,22 @@ public class RedisKeyTest {
 
         Jedis jedis = pool.getResource();
 
-        System.out.println(jedis.scard("emptyset"));
+        StopWatch watch=new  StopWatch();
+        watch.start();
+        Pipeline pipeline = jedis.pipelined();
+        pipeline.multi();
 
+        String key1 = "W:1106";
+        String key2 = "W:1106:U";
 
-        pool.returnResource(jedis);*/
-        String key = "14958083683008894285313";
-        System.out.println(key.hashCode());
+        for(int i = 0; i<=10000; i++){
+            pipeline.zrange(key1, 0, -1);
+            pipeline.zrange(key2, 0, -1);
+        }
+        List<Object> results = pipeline.syncAndReturnAll();
+
+        pool.returnResource(jedis);
+        watch.stop();
     }
 
 }

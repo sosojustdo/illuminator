@@ -2,6 +2,7 @@ package com.steve.redis;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Created by stevexu on 12/23/16.

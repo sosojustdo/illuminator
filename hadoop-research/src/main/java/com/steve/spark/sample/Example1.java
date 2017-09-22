@@ -34,14 +34,14 @@ public class Example1 {
                     for (int i = 0; i < numKVPairs; i++) {
                         byte[] value = new byte[valSize];
                         random.nextBytes(value);
-                        int key = random.nextInt();
+                        int key = random.nextInt(100);
                         list.add(new Tuple2<Integer, byte[]>(key, value));
                     }
                     return list.iterator();
                 }).cache();
 
-        System.out.println("count"+pairRDD.count());
-        System.out.println("reducecount"+pairRDD.groupByKey(numReducers).count());
+        System.out.println("final count:"+pairRDD.count());
+        System.out.println("final reducecount:"+pairRDD.groupByKey(numReducers).count());
 
         //Thread.sleep(1000000L);
 
