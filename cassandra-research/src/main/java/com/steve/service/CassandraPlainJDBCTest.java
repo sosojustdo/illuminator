@@ -1,15 +1,16 @@
 package com.steve.service;
 
 import com.steve.entity.plain.VendorItem;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * @author stevexu
  * @Since 9/25/17
  */
+@Slf4j
 public class CassandraPlainJDBCTest {
 
     public static void main(String args[]){
@@ -26,7 +27,7 @@ public class CassandraPlainJDBCTest {
             cassandraPlainService.saveVendorItems(vendorItem);
             System.out.println(cassandraPlainService.queryVendorItem(3000000001L));
         }catch(Exception ex){
-
+            log.error("save failed", ex);
         }
         finally {
             cassandraPlainService.close();
