@@ -38,6 +38,8 @@
         <spark.version>2.2.0</spark.version>
         <redisson.version>3.5.0</redisson.version>
         <jmh.version>1.19</jmh.version>
+        <lombok.version>1.16.12</lombok.version>
+        <cassandra.jdbc.driver>3.3.0</cassandra.jdbc.driver>
     </properties>
 
     <modules>
@@ -269,6 +271,16 @@
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.datastax.cassandra</groupId>
+                <artifactId>cassandra-driver-core</artifactId>
+                <version>${cassandra.jdbc.driver}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -290,10 +302,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.6.0</version>
                 <configuration>
                     <target>1.8</target>
                     <source>1.8</source>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.16.12</version>
+                        </path>
+                    </annotationProcessorPaths>
                     <compilerId>javac</compilerId>
                     <compilerArgs>
                         <arg>-Xlint</arg>
@@ -302,6 +321,7 @@
                     <debug>true</debug>
                 </configuration>
             </plugin>
+
 
         </plugins>
     </build>
