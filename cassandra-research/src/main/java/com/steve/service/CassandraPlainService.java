@@ -15,17 +15,18 @@ public class CassandraPlainService {
 
     private ObjectMapper objectMapper;
 
+    CassandraConnector client = new CassandraConnector();
+
     public void connect() {
-        CassandraConnector client = new CassandraConnector();
         client.connect("127.0.0.1", 9042);
         this.session = client.getSession();
     }
 
     public void saveVendorItems(VendorItem vendorItem) {
-        StringBuilder insertStr = new StringBuilder("update buyboxtest.vendoritems set ")
+        StringBuilder insertStr = new StringBuilder("update buyboxtest.vendor_items set ")
                 .append("itemid=?, vendorid=?, banned=?, deleted=?, startedat=?, endedat=?, productid=?,")
-                .append("soldout=?, rates=?, used=?, message_data=?, message_evenettime=?, message_obsolete=?,")
-                .append("created=?, modifiedat=? where vendoritemid= ?");
+                .append("soldout=?, rates=?, used=?, message_data=?, message_eventtime=?, message_obsolete=?,")
+                .append("createdat=?, modifiedat=? where vendoritemid= ?");
         PreparedStatement preparedStatement = session.prepare(insertStr.toString());
         session.execute(preparedStatement.bind(vendorItem.getItemid(), vendorItem.getVendorId(),
                                                vendorItem.isBanned(), vendorItem.isDeleted(), vendorItem.getStartedAt(),
@@ -36,7 +37,7 @@ public class CassandraPlainService {
     }
 
     public VendorItem queryVendorItem(long vendorItemId) {
-        StringBuilder queryStr = new StringBuilder("select * from buyboxtest.vendoritems where vendoritemid = ?");
+        StringBuilder queryStr = new StringBuilder("select * from buyboxtest.vendor_items where vendoritemid = ?");
         PreparedStatement preparedStatement = session.prepare(queryStr.toString());
         ResultSet rs = session.execute(preparedStatement.bind(vendorItemId).setConsistencyLevel(ConsistencyLevel.QUORUM));
         if (!rs.isExhausted()) {
@@ -70,6 +71,10 @@ public class CassandraPlainService {
             return vendor;
         }
         return null;
+    }
+
+    public void close(){
+        client.close();
     }
 
 }
