@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+    <persistence-unit name="buybox_cassandra">
+        <provider>com.impetus.kundera.KunderaPersistence</provider>
+        <class>com.steve.entity.cassandra.VendorItem</class>
+        <class>com.steve.entity.cassandra.Vendor</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="kundera.nodes" value="127.0.0.1"/>
+            <property name="kundera.port" value="9042"/>
+            <property name="kundera.dialect" value="cassandra"/>
+            <property name="kundera.client" value="CQL"/>
+            <property name="kundera.pool.size.max.active" value="600"/>
+            <property name="kundera.pool.size.max.total" value="1000"/>
+            <!--property name="kundera.username" value="cassandra"/>
+            <property name="kundera.password" value="cassandra"/-->
+
+            <!--property name="kundera.client.lookup.class" value="com.impetus.client.cassandra.thrift.ThriftClientFactory"/-->
+            <property name="kundera.client.lookup.class" value="com.impetus.kundera.client.cassandra.dsdriver.DSClientFactory"/>
+            <property name="kundera.keyspace" value="buyboxtest"/>
+            <property name="kundera.ddl.auto.prepare" value="validate"/>
+            <!-- client -->
+            <property name="kundera.client.property" value="/META-INF/KunderaClient.xml"/>
+            <property name="kundera.show.query" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>

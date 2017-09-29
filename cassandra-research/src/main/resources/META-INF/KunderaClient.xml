@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clientProperties>
+    <datastores>
+        <dataStore>
+            <name>cassandra</name>
+            <connection>
+                <!-- Load balancing specific configuration -->
+                <properties>
+                    <!-- Load Balancing -->
+                    <!-- DCAwareRoundRobinPolicy, RoundRobinPolicy -->
+                    <property name="isTokenAware" value="true"/>
+                    <property name="isLatencyAware" value="true"/>
+                    <property name="loadbalancing.policy" value="DCAwareRoundRobinPolicy"/>
+                    <property name="localdc" value="datacenter1"/>
+                    <!--property name="usedHostsPerRemoteDc" value="0"/>
+                    <property name="allowRemoteDCsForLocalConsistencyLevel" value="false"/-->
+                    <property name="compression" value="LZ4"/>
+                    <!-- Reconnection Policy -->
+                    <!--property name="reconnection.policy" value="ConstantReconnectionPolicy"/>
+                    <property name="constantDelayMs" value="2000"/-->
+                    <property name="reconnection.policy" value="ExponentialReconnectionPolicy"/>
+                    <property name="baseDelayMs" value="1000"/>
+                    <property name="maxDelayMs" value="4000"/>
+                    <!-- Retry Policy -->
+                    <!-- DowngradingConsistencyRetryPolicy
+                         FallthroughRetryPolicy
+                         Custom - customRetryPolicy
+                     -->
+                    <property name="retry.policy" value="FallthroughRetryPolicy"/>
+                    <!-- Pooling -->
+                    <!-- hostDistance: LOCAL, REMOTE, IGNORED -->
+                    <property name="hostDistance" value="LOCAL"/>
+                    <property name="maxConnectionsPerHost" value="60"/>
+                    <property name="maxRequestsPerConnection" value="1024"/>
+                    <property name="coreConnections" value="30"/>
+                </properties>
+            </connection>
+            <schemas>
+                <schema>
+                    <name>buybox</name>
+                    <properties>
+                        <property name="strategy.class" value="NetworkTopologyStrategy"/>
+                        <property name="replication.factor" value="1"/>
+                    </properties>
+                </schema>
+            </schemas>
+        </dataStore>
+    </datastores>
+</clientProperties>

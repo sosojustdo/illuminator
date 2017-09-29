@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vendor implements Serializable {
+public class PlainVendor implements Serializable {
 
     private String vendorId;
 

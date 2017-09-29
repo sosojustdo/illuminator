@@ -1,6 +1,6 @@
 package com.steve.service;
 
-import com.steve.entity.plain.VendorItem;
+import com.steve.entity.plain.PlainVendorItem;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -20,9 +20,9 @@ public class CassandraPlainJDBCTest {
     public static void testPlainCassandra(){
         CassandraPlainService cassandraPlainService = new CassandraPlainService();
         cassandraPlainService.connect();
-        VendorItem vendorItem = new VendorItem(3000000001L, 10000L, false, false, null, new Date(),
-                                               new Date(), new Date(), false, 5000L, new BigDecimal(20000.00), false, false,
-                                               "A00010028", new Date(), new Date());
+        PlainVendorItem vendorItem = new PlainVendorItem(3000000001L, 10000L, false, false, null, new Date(),
+                                                         new Date(), new Date(), false, 5000L, new BigDecimal(20000.00), false, false,
+                                                         "A00010028", new Date(), new Date());
         try {
             cassandraPlainService.saveVendorItems(vendorItem);
             System.out.println(cassandraPlainService.queryVendorItem(3000000001L));

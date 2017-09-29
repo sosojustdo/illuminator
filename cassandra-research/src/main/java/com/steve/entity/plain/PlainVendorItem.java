@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VendorItem implements Serializable{
+public class PlainVendorItem implements Serializable{
 
     private long vendoritemid;
 
