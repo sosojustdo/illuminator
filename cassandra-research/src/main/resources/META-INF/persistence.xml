@@ -24,7 +24,7 @@
             <property name="kundera.ddl.auto.prepare" value="validate"/>
             <!-- client -->
             <property name="kundera.client.property" value="/META-INF/KunderaClient.xml"/>
-            <property name="kundera.show.query" value="true"/>
+            <!--<property name="kundera.show.query" value="true"/>-->
         </properties>
     </persistence-unit>
 </persistence>

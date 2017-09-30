@@ -14,7 +14,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import javax.persistence.PersistenceProperty;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -48,16 +47,14 @@ public class CassandraVendorItemService{
     private EntityManager entityManagerConsistencyQuroum;
 
     public VendorItem findOne(Long vendorItemId) {
-        List<VendorItem> cvis;
-        cvis = entityManagerConsistencyQuroum
+        List<VendorItem> cvis = entityManagerConsistencyQuroum
                 .createNamedQuery(QueryHelper.NamedQueries.CASSANDRA_FIND_VENDOR_ITEM_BY_VENDOR_ITEM_ID, VendorItem.class)
                 .setParameter(QueryHelper.Parameters.VENDOR_ITEM_ID, vendorItemId)
                 .getResultList();
-        if (cvis!=null && !cvis.isEmpty()) {
-            return cvis.iterator().next();
-        } else {
-            return null;
+        if(cvis.size() > 0){
+            return cvis.get(0);
         }
+        return null;
     }
 
     public void save(VendorItem vendorItem) {

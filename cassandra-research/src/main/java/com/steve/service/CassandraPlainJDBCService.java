@@ -1,34 +1,83 @@
 package com.steve.service;
 
 import com.datastax.driver.core.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.steve.entity.cassandra.VendorItem;
 import com.steve.entity.plain.PlainVendor;
 import com.steve.entity.plain.PlainVendorItem;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import static org.springframework.boot.Banner.Mode.LOG;
 
 /**
  * @author stevexu
  * @Since 9/25/17
  */
-public class CassandraPlainService {
+@Slf4j
+@Service
+public class CassandraPlainJDBCService {
+
+    private Cluster cluster;
 
     private Session session;
 
-    private ObjectMapper objectMapper;
+    private PreparedStatement saveViStmt;
 
-    CassandraConnector client = new CassandraConnector();
+    private PreparedStatement queryViStmt;
 
-    public void connect() {
-        client.connect("127.0.0.1", 9042);
-        this.session = client.getSession();
-    }
+    private PreparedStatement queryVendorStmt;
 
-    public void saveVendorItems(PlainVendorItem vendorItem) {
+    @PostConstruct
+    private void initStatements(){
+        Cluster.Builder b = Cluster.builder().addContactPoint("127.0.0.1").withPort(9042);
+        cluster = b.build();
+        session = cluster.connect();
         StringBuilder insertStr = new StringBuilder("update buyboxtest.vendor_items set ")
                 .append("itemid=?, vendorid=?, banned=?, deleted=?, startedat=?, endedat=?, productid=?,")
                 .append("soldout=?, rates=?, used=?, message_data=?, message_eventtime=?, message_obsolete=?,")
                 .append("createdat=?, modifiedat=? where vendoritemid= ?");
-        PreparedStatement preparedStatement = session.prepare(insertStr.toString());
-        session.execute(preparedStatement.bind(vendorItem.getItemid(), vendorItem.getVendorId(),
+        saveViStmt = session.prepare(insertStr.toString());
+
+        StringBuilder queryStr = new StringBuilder("select * from buyboxtest.vendor_items where vendoritemid = ?");
+        queryViStmt = session.prepare(queryStr.toString());
+
+        StringBuilder queryVendorStr = new StringBuilder("select * from buyboxtest.vendors where vendorid = ?");
+        queryVendorStmt = session.prepare(queryVendorStr.toString());
+    }
+
+    public void testPlainCassandra(int rotation){
+        StopWatch watch = new StopWatch();
+        watch.start();
+        try {
+            for(int i=0; i<=rotation; i++){
+                /*PlainVendorItem vendorItem = new PlainVendorItem(3000000000L+i, 10000L, false, false, null, new Date(),
+                                                                 new Date(), new Date(), false, 5000L, new BigDecimal(20000.00), false, false,
+                                                                 "A00010028", new Date(), new Date());
+                saveVendorItems(vendorItem);*/
+                queryVendorItem(3000000000L+i);
+            }
+            watch.stop();
+            log.info("process vendor items take {} ms", watch.getTime());
+        }catch(Exception ex){
+            log.error("save failed", ex);
+        }
+        finally {
+            close();
+        }
+    }
+
+    public void close() {
+        session.close();
+        cluster.close();
+    }
+
+    public void saveVendorItems(PlainVendorItem vendorItem) {
+        session.execute(saveViStmt.bind(vendorItem.getItemid(), vendorItem.getVendorId(),
                                                vendorItem.isBanned(), vendorItem.isDeleted(), vendorItem.getStartedAt(),
                                                vendorItem.getEndedAt(), vendorItem.getProductId(), vendorItem.isSoldOut(),
                                                vendorItem.getRates(), vendorItem.isUsed(), vendorItem.getMessage_data(),
@@ -37,9 +86,7 @@ public class CassandraPlainService {
     }
 
     public PlainVendorItem queryVendorItem(long vendorItemId) {
-        StringBuilder queryStr = new StringBuilder("select * from buyboxtest.vendor_items where vendoritemid = ?");
-        PreparedStatement preparedStatement = session.prepare(queryStr.toString());
-        ResultSet rs = session.execute(preparedStatement.bind(vendorItemId).setConsistencyLevel(ConsistencyLevel.QUORUM));
+        ResultSet rs = session.execute(queryViStmt.bind(vendorItemId).setConsistencyLevel(ConsistencyLevel.QUORUM));
         if (!rs.isExhausted()) {
             Row row = rs.one();
             PlainVendorItem vendorItem = new PlainVendorItem(row.getLong("vendoritemid"), row.getLong("itemid"),
@@ -55,9 +102,7 @@ public class CassandraPlainService {
     }
 
     public PlainVendor queryVendor(String vendorId) {
-        StringBuilder queryStr = new StringBuilder("select * from buyboxtest.vendors where vendorid = ?");
-        PreparedStatement preparedStatement = session.prepare(queryStr.toString());
-        ResultSet rs = session.execute(preparedStatement.bind(vendorId).setConsistencyLevel(ConsistencyLevel.QUORUM));
+        ResultSet rs = session.execute(queryVendorStmt.bind(vendorId).setConsistencyLevel(ConsistencyLevel.QUORUM));
         if (!rs.isExhausted()) {
             Row row = rs.one();
             PlainVendor vendor = new PlainVendor(row.getString("vendorid"), row.getBool("banned"),
@@ -73,8 +118,6 @@ public class CassandraPlainService {
         return null;
     }
 
-    public void close(){
-        client.close();
-    }
+
 
 }
