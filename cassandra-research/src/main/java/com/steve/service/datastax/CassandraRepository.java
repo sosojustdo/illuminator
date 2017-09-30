@@ -1,6 +1,8 @@
 package com.steve.service.datastax;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.HostDistance;
+import com.datastax.driver.core.PoolingOptions;
 import com.datastax.driver.core.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,14 +20,25 @@ import javax.inject.Inject;
 @Slf4j
 public class CassandraRepository {
 
-    @Inject
-    @Qualifier("cassandraCluster")
-    Cluster cluster;
-
     private Session session;
 
     @PostConstruct
     public void initSession(){
+        PoolingOptions poolingOptions = new PoolingOptions();
+        poolingOptions
+                .setCoreConnectionsPerHost(HostDistance.LOCAL, 4)
+                .setMaxConnectionsPerHost(HostDistance.LOCAL, 8)
+                .setCoreConnectionsPerHost(HostDistance.REMOTE, 4)
+                .setMaxConnectionsPerHost(HostDistance.REMOTE, 8)
+                .setMaxRequestsPerConnection(HostDistance.LOCAL, 8192)
+                .setMaxRequestsPerConnection(HostDistance.REMOTE, 1024)
+                .setHeartbeatIntervalSeconds(60)
+                .setPoolTimeoutMillis(5000);
+
+
+        Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").withPort(9042)
+                                 .withPoolingOptions(poolingOptions)
+                                 .build();
         if (session == null) {
             session = cluster.connect();
         }
