@@ -1,4 +1,4 @@
-package com.steve.service;
+package com.steve.service.kundera;
 
 /**
  * @author stevexu
@@ -6,8 +6,8 @@ package com.steve.service;
  */
 
 import com.impetus.client.cassandra.common.CassandraConstants;
-import com.steve.entity.cassandra.QueryHelper;
-import com.steve.entity.cassandra.VendorItem;
+import com.steve.entity.kundera.QueryHelper;
+import com.steve.entity.kundera.VendorItem;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -17,7 +17,7 @@ import javax.persistence.PersistenceProperty;
 import java.util.List;
 
 @Service
-public class CassandraVendorItemService{
+public class CassandraKunderaVendorItemService {
 
     @PersistenceContext(
             unitName = "buybox_cassandra",

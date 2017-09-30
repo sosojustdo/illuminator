@@ -44,6 +44,19 @@
             <artifactId>cassandra-driver-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>${cassandra.jdbc.driver}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-mapping</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-extras</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.impetus.kundera.core</groupId>
             <artifactId>kundera-core</artifactId>
         </dependency>

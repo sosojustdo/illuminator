@@ -5,8 +5,8 @@ package com.steve;
  * @Since 9/29/17
  */
 
-import com.steve.service.CassandraKunderaService;
-import com.steve.service.CassandraPlainJDBCService;
+import com.steve.service.kundera.CassandraKunderaService;
+import com.steve.service.plain.CassandraPlainJDBCService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.inject.Inject;
 

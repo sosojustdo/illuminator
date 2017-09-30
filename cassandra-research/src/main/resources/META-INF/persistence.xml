@@ -5,8 +5,8 @@
              version="2.0">
     <persistence-unit name="buybox_cassandra">
         <provider>com.impetus.kundera.KunderaPersistence</provider>
-        <class>com.steve.entity.cassandra.VendorItem</class>
-        <class>com.steve.entity.cassandra.Vendor</class>
+        <class>com.steve.entity.kundera.VendorItem</class>
+        <class>com.steve.entity.kundera.Vendor</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="kundera.nodes" value="127.0.0.1"/>

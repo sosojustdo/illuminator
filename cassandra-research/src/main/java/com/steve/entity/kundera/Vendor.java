@@ -1,4 +1,4 @@
-package com.steve.entity.cassandra;
+package com.steve.entity.kundera;
 
 /**
  * @author stevexu

@@ -1,7 +1,6 @@
-package com.steve.service;
+package com.steve.service.plain;
 
 import com.datastax.driver.core.*;
-import com.steve.entity.cassandra.VendorItem;
 import com.steve.entity.plain.PlainVendor;
 import com.steve.entity.plain.PlainVendorItem;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +8,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.util.Date;
-
-import static org.springframework.boot.Banner.Mode.LOG;
 
 /**
  * @author stevexu
