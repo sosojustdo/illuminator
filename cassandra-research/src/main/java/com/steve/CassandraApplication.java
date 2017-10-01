@@ -22,7 +22,7 @@ import javax.inject.Inject;
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class,HibernateJpaAutoConfiguration.class})
 @SpringBootApplication
 @Slf4j
-@ComponentScan({"com.steve.service","com.steve.config"})
+@ComponentScan({"com.steve.service","com.steve.config","com.steve.controller"})
 /*@PropertySource({"classpath:application.properties"})*/
 public class CassandraApplication implements CommandLineRunner {
 
@@ -43,7 +43,7 @@ public class CassandraApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
       /*  cassandraKunderaService.testKunderaCassandra(300000);
         cassandraPlainJDBCService.testPlainCassandra(300000);*/
-        cassandraVendorItemService.testDatastaxCassandra(300000);
+        //cassandraVendorItemService.testDatastaxCassandra(300000);
     }
 }
 
