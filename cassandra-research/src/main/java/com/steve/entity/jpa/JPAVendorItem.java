@@ -11,11 +11,11 @@ import java.io.Serializable;
  * @Since 9/29/17
  */
 @Data
-/*@Entity
-@Table(name = "vendor_items")*/
+@Entity
+@Table(name = "vendor_items")
 @EqualsAndHashCode(exclude = {"createdAt", "modifiedAt"})
 public class JPAVendorItem implements Serializable {
-    /*private static final long serialVersionUID = -3226687162767205339L;
+    private static final long serialVersionUID = -3226687162767205339L;
 
     @Id
     @Column(name = "vendorItemId", nullable = false)
@@ -40,6 +40,7 @@ public class JPAVendorItem implements Serializable {
     private Boolean banned = false;
 
     @Column(name = "used", columnDefinition = "tinyint(1)")
-    private Boolean used = false;*/
+    private Boolean used = false;
+
 
 }

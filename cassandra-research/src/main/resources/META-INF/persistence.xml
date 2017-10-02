@@ -3,6 +3,20 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
+    <persistence-unit name="buybox" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
+            <property name="jadira.usertype.autoRegisterUserTypes" value="true"/>
+            <property name="jadira.usertype.databaseZone" value="jvm"/>
+
+            <property name="h4m.expiry.seconds" value="300"/>
+            <property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.spi.UpdateTimestampsCache" value="3600"/>
+            <property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.internal.StandardQueryCache" value="3600"/>
+            <property name="h4m.expiry.seconds.buybox.buybox.vendor_rules" value="60"/>
+        </properties>
+    </persistence-unit>
     <persistence-unit name="buybox_cassandra">
         <provider>com.impetus.kundera.KunderaPersistence</provider>
         <class>com.steve.entity.kundera.VendorItem</class>

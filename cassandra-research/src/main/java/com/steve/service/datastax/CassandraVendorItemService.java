@@ -77,16 +77,16 @@ public class CassandraVendorItemService {
             VendorItem vendorItem = new VendorItem(3000000000L + i, 5000L, 10000L, "A00010028", new Date(), new Date(), false,
                                                                                                      false, new BigDecimal(30000.00), false, null, false, new Date(), new Date(),
                                                                                                      new Date(), false);
-            save(vendorItem);
+            //save(vendorItem);
             //findOne(3000000000L+i);
-            //findOneByAccessor(3000000000L+i);
+            findOneByAccessor(3000000000L+i);
         }
         watch.stop();
         log.info("process vendor items take {} ms", watch.getTime());
     }
 
     public static void main(String args[]){
-        System.out.println(new Date(1506829866706L));
+        System.out.println(new Date(1506837452434L));
     }
 
 }

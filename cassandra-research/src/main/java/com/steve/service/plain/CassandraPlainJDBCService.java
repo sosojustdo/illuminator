@@ -8,6 +8,8 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author stevexu
@@ -50,11 +52,11 @@ public class CassandraPlainJDBCService {
         watch.start();
         try {
             for(int i=0; i<=rotation; i++){
-                /*PlainVendorItem vendorItem = new PlainVendorItem(3000000000L+i, 10000L, false, false, null, new Date(),
+                PlainVendorItem vendorItem = new PlainVendorItem(3000000000L+i, 10000L, false, false, null, new Date(),
                                                                  new Date(), new Date(), false, 5000L, new BigDecimal(20000.00), false, false,
                                                                  "A00010028", new Date(), new Date());
-                saveVendorItems(vendorItem);*/
-                queryVendorItem(3000000000L+i);
+                saveVendorItems(vendorItem);
+                //queryVendorItem(3000000000L+i);
             }
             watch.stop();
             log.info("process vendor items take {} ms", watch.getTime());
