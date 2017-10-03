@@ -6,7 +6,6 @@ package com.steve.config;
  */
 
 import com.mysema.query.jpa.impl.JPAQueryFactory;
-import com.steve.repository.MyJpaRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -22,7 +21,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -30,9 +28,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories(entityManagerFactoryRef = "buyboxEntityManagerFactory",
-                       transactionManagerRef = "buyboxTransactionManager",
-                       repositoryFactoryBeanClass = MyJpaRepositoryFactoryBean.class)
+@EnableJpaRepositories(basePackages = "com.steve.repository",
+                       entityManagerFactoryRef = "buyboxEntityManagerFactory",
+                       transactionManagerRef = "buyboxTransactionManager"
+                       )
 public class JPAConfig {
 
     @Autowired

@@ -12,8 +12,8 @@
             <property name="jadira.usertype.databaseZone" value="jvm"/>
 
             <property name="h4m.expiry.seconds" value="300"/>
-            <property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.spi.UpdateTimestampsCache" value="3600"/>
-            <property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.internal.StandardQueryCache" value="3600"/>
+            <!--<property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.spi.UpdateTimestampsCache" value="3600"/>
+            <property name="h4m.expiry.seconds.buybox.buybox.org.hibernate.cache.internal.StandardQueryCache" value="3600"/>-->
             <property name="h4m.expiry.seconds.buybox.buybox.vendor_rules" value="60"/>
         </properties>
     </persistence-unit>

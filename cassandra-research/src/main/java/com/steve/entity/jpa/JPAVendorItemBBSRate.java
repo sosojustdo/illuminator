@@ -1,10 +1,13 @@
 package com.steve.entity.jpa;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 @Entity
@@ -12,23 +15,31 @@ import java.math.BigDecimal;
        uniqueConstraints = {
         @UniqueConstraint(name = "uk_vendor_item_bbs_rates_vendorItemId_formula", columnNames = { "vendorItemId", "formula" })
     })
+@AllArgsConstructor
+@NoArgsConstructor
 public class JPAVendorItemBBSRate {
 
     private static final long serialVersionUID = 4905699610205645232L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;//NOSONAR
+    private Long id;
 
     @Column(name = "rate", nullable = false, columnDefinition = "decimal(20,5)")
-    private BigDecimal rate;//NOSONAR
+    private BigDecimal rate;
 
     @Column(name = "formula", nullable = false)
-    private int formula;//NOSONAR
+    private int formula;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vendorItemId")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE,
-        region = "vibr.vendorItem")
-    private JPAVendorItem vendorItem;//NOSONAR
+    private JPAVendorItem vendorItem;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "createdAt", nullable = false, updatable = false)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "modifiedAt", nullable = false)
+    private Date modifiedAt;
 }

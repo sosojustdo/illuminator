@@ -6,6 +6,7 @@ package com.steve;
  */
 
 import com.steve.service.datastax.CassandraVendorItemService;
+import com.steve.service.jpa.JPAVendorItemService;
 import com.steve.service.kundera.CassandraKunderaService;
 import com.steve.service.plain.CassandraPlainJDBCService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class CassandraApplication implements CommandLineRunner {
     @Inject
     private CassandraVendorItemService cassandraVendorItemService;
 
+    @Inject
+    private JPAVendorItemService jpaVendorItemService;
+
     public static void main(String[] args) {
         SpringApplication.run(CassandraApplication.class, args);
     }
@@ -45,6 +49,7 @@ public class CassandraApplication implements CommandLineRunner {
         //cassandraKunderaService.testKunderaCassandra(300000);
         //cassandraPlainJDBCService.testPlainCassandra(300000);
         //cassandraVendorItemService.testDatastaxCassandra(300000);
+        jpaVendorItemService.testJPAVendorItem(300000);
     }
 }
 

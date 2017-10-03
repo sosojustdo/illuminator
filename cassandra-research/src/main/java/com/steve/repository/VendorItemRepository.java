@@ -4,6 +4,7 @@ import com.mysema.query.types.Predicate;
 import com.steve.entity.jpa.JPAVendorItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,11 +14,9 @@ import java.util.List;
  * @Since 10/2/17
  */
 @Repository
-public interface VendorItemRepository extends MyJpaRepository<JPAVendorItem, Long>{
-    @Override
-    Page<JPAVendorItem> findAll(Predicate predicate, Pageable pageable);
+public interface VendorItemRepository extends CrudRepository<JPAVendorItem, Long> {
 
-    @Override
-    List<JPAVendorItem> findAll(Predicate predicate);
+    Page<JPAVendorItem> findAll(Pageable pageable);
+
 }
 
