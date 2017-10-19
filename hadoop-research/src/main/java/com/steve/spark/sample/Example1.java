@@ -43,7 +43,7 @@ public class Example1 {
         System.out.println("final count:"+pairRDD.count());
         System.out.println("final reducecount:"+pairRDD.groupByKey(numReducers).count());
 
-        //Thread.sleep(1000000L);
+        //Thread.sleep(100000L);
 
         sparkContext.stop();
     }

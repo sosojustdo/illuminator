@@ -5,6 +5,8 @@ import com.datastax.driver.mapping.annotations.Param;
 import com.datastax.driver.mapping.annotations.Query;
 import com.steve.entity.datastax.VendorItem;
 
+import java.util.Date;
+
 /**
  * @author stevexu
  * @Since 10/1/17
