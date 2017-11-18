@@ -70,23 +70,35 @@ public class CassandraVendorItemService {
         mapper.save(vendorItem);
     }
 
-    public void testDatastaxCassandra(int rotation){
+    public void testDatastaxCassandra(int rotation) {
         StopWatch watch = new StopWatch();
         watch.start();
-        for(int i=0; i<=rotation; i++){
-            VendorItem vendorItem = new VendorItem(3000000000L + i, 5000L, 10000L, "A00010028", new Date(), new Date(), false,
-                                                                                                     false, new BigDecimal(30000.00), false, null, false, new Date(), new Date(),
-                                                                                                     new Date(), false);
-            //save(vendorItem);
+        for (int i = 0; i <= rotation; i++) {
+            String vendor = "";
+            if (i <= 200000) {
+                vendor = "A00010028";
+            } else if (i >= 200000 && i <= 500000) {
+                vendor = "A00010029";
+            } else if (i >= 500000 && i <= 800000) {
+                vendor = "A00010030";
+            } else {
+                vendor = "A00010028";
+            }
+            VendorItem vendorItem = new VendorItem(3000000000L + i, 5000L, 10000L, vendor, new Date(), new Date(), false,
+                                                   false, new BigDecimal(30000.00), false, null, false, new Date(), new Date(),
+                                                   new Date(), false);
+            save(vendorItem);
             //findOne(3000000000L+i);
-            findOneByAccessor(3000000000L+i);
+            findOneByAccessor(3000000000L + i);
         }
         watch.stop();
         log.info("process vendor items take {} ms", watch.getTime());
     }
 
     public static void main(String args[]){
-        System.out.println(new Date(1506837452434L));
+        /*System.out.println(new Date(1506837452434L));
+        String a = "喵喵";
+        System.out.println(a.indexOf("喵喵"));*/
     }
 
 }

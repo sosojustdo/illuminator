@@ -5,6 +5,7 @@ package com.steve;
  * @Since 9/29/17
  */
 
+import com.steve.service.datastax.CassandraDictService;
 import com.steve.service.datastax.CassandraVendorItemService;
 import com.steve.service.jpa.JPAVendorItemService;
 import com.steve.service.kundera.CassandraKunderaService;
@@ -40,6 +41,9 @@ public class CassandraApplication implements CommandLineRunner {
     @Inject
     private JPAVendorItemService jpaVendorItemService;
 
+    @Inject
+    private CassandraDictService cassandraDictService;
+
     public static void main(String[] args) {
         SpringApplication.run(CassandraApplication.class, args);
     }
@@ -48,8 +52,9 @@ public class CassandraApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         //cassandraKunderaService.testKunderaCassandra(300000);
         //cassandraPlainJDBCService.testPlainCassandra(300000);
-        //cassandraVendorItemService.testDatastaxCassandra(300000);
-        jpaVendorItemService.testJPAVendorItem(300000);
+        //cassandraVendorItemService.testDatastaxCassandra(1000000);
+        //jpaVendorItemService.testJPAVendorItem(300000);
+        cassandraDictService.process();
     }
 }
 
